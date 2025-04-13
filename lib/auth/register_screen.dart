@@ -4,7 +4,7 @@ import 'package:skill_swap/auth/login_screen.dart';
 
 import 'package:skill_swap/auth/verfication_screen.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
-import 'package:skill_swap/widgets/default_text_form_fieled.dart';
+import 'package:skill_swap/widgets/default_text_form_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

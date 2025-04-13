@@ -3,7 +3,7 @@ import 'package:skill_swap/app_theme.dart';
 import 'package:skill_swap/auth/register_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
-import 'package:skill_swap/widgets/default_text_form_fieled.dart';
+import 'package:skill_swap/widgets/default_text_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login_screen';

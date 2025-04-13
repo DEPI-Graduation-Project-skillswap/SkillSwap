@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/profile/profile_setup_page.dart'; // Import the profile page
+import 'package:skill_swap/profile/views/profile_setup_page.dart'; // Import the profile page
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

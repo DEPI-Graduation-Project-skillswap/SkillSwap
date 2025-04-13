@@ -8,6 +8,7 @@ class DefaultTextFormFieled extends StatefulWidget {
   final String? Function(String?)? validator;
   final bool isPassword;
   final TextEditingController controller;
+  
   const DefaultTextFormFieled({
     super.key,
     required this.hintText,
@@ -24,12 +25,19 @@ class DefaultTextFormFieled extends StatefulWidget {
 
 class _DefaultTextFormFieledState extends State<DefaultTextFormFieled> {
   late bool isObscure = widget.isPassword;
+  
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: widget.controller,
       validator: widget.validator,
       obscureText: isObscure,
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      // Add onChanged to ensure the TextEditingController properly fires
+      onChanged: (value) {
+        // This ensures the value change is captured immediately
+        debugPrint('TextFormField onChanged: "$value"');
+      },
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: TextStyle(color: Apptheme.hintTextColor),
