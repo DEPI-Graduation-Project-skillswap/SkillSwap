@@ -7,7 +7,7 @@ class FullNameWidget extends StatefulWidget {
   const FullNameWidget({super.key});
 
   @override
-  _FullNameWidgetState createState() => _FullNameWidgetState();
+  State<FullNameWidget> createState() => _FullNameWidgetState();
 }
 
 class _FullNameWidgetState extends State<FullNameWidget> {
@@ -17,14 +17,16 @@ class _FullNameWidgetState extends State<FullNameWidget> {
   @override
   void initState() {
     super.initState();
-    final currentName = context.read<ProfileSetupCubit>().state.fullName;
-    _controller = TextEditingController(text: currentName);
+    final initialName = context.read<ProfileSetupCubit>().state.fullName;
+    _controller = TextEditingController(text: initialName);
     
-    // Set up listener with immediate effect
+    // Set up listener to update state when controller changes
     _controller.addListener(_updateStateFromController);
+    
+    print("FullNameWidget initState: Initial name='${initialName}'"); // Debug
   }
   
-  // Extract method for reuse and clarity
+  // Extract method for updating state from controller
   void _updateStateFromController() {
     final cubit = context.read<ProfileSetupCubit>();
     final newText = _controller.text;

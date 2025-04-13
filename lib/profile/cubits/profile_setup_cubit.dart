@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'dart:io'; // <-- Added this import for File type
+import 'dart:io'; // <-- Import for File type
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart'; // Import equatable
 import 'package:skill_swap/profile/models/skill_category.dart'; // Assuming exists
+import 'package:skill_swap/profile/cubits/profile_cubit.dart'; // Import ProfileState
 
 // Make state equatable for potentially better BlocBuilder comparisons
 class ProfileSetupState extends Equatable {
@@ -82,47 +83,70 @@ class ProfileSetupState extends Equatable {
 }
 
 class ProfileSetupCubit extends Cubit<ProfileSetupState> {
-  ProfileSetupCubit() : super(const ProfileSetupState(isLoading: true)) { // Start with loading true
-    loadSkillsData();
+  // Modify constructor to accept optional EXISTING profile data
+  ProfileSetupCubit({ProfileState? existingProfile})
+      : super(const ProfileSetupState(isLoading: true)) { // Start with loading true
+    _initialize(existingProfile: existingProfile);
   }
 
-  Future<void> loadSkillsData() async {
-    // No need to emit loading true here, it's set in initial state
-    emit(state.copyWith(errorMessage: '')); // Clear previous errors
+  // Separate async initialization logic
+  Future<void> _initialize({ProfileState? existingProfile}) async {
+    // Always load skills data first
+    List<SkillCategory> loadedCategories = [];
+    List<String> loadedSkillOptions = [];
+    String? errorLoadingSkills;
+
     try {
       final String jsonString = await rootBundle.loadString('assets/data/skills_data.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       final List<dynamic> categoriesJson = jsonData['categories'];
-      final List<SkillCategory> skillCategories =
-          categoriesJson.map((category) => SkillCategory.fromJson(category)).toList();
-
-      final List<String> allSkills = skillCategories
-          .expand((category) => category.skills) // Use expand for cleaner code
-          .toSet() // Use Set to remove duplicates easily
-          .toList(); // Convert back to List
-      allSkills.sort(); // Sort alphabetically
-
-      emit(state.copyWith(
-        skillCategories: skillCategories,
-        skillOptions: allSkills,
-        filteredOfferedSkills: List.from(allSkills), // Create copies
-        filteredDesiredSkills: List.from(allSkills), // Create copies
-        isLoading: false, // Turn off loading
-      ));
+      loadedCategories = categoriesJson.map((category) => SkillCategory.fromJson(category)).toList();
+      loadedSkillOptions = loadedCategories
+          .expand((category) => category.skills)
+          .toSet()
+          .toList();
+      loadedSkillOptions.sort();
     } catch (e) {
       debugPrint('Error loading skills data: $e');
+      errorLoadingSkills = 'Failed to load skills. Using defaults. Error: $e';
       // Provide fallback skills if loading fails
-       final List<String> fallbackSkills = [
+      loadedSkillOptions = [
         "Programming", "Product Design", "Project Management", "Data Analysis",
         "UX Research", "Content Writing", "Digital Marketing", "Graphic Design",
         "Photography", "Video Editing",
       ];
+    }
+
+    // Now, determine the initial state based on whether existingProfile was passed
+    if (existingProfile != null) {
+      // Editing existing profile: Use data from existingProfile + loaded skills
+      debugPrint("ProfileSetupCubit: Initializing for EDIT mode.");
       emit(state.copyWith(
-        isLoading: false, // Turn off loading even on error
-        errorMessage: 'Failed to load skills. Using defaults. Error: $e',
-        skillOptions: fallbackSkills, // Set fallback options
-        filteredOfferedSkills: List.from(fallbackSkills),
-        filteredDesiredSkills: List.from(fallbackSkills),
+        skillCategories: loadedCategories,
+        skillOptions: loadedSkillOptions,
+        // Pre-fill fields from the existing profile
+        fullName: existingProfile.fullName,
+        bio: existingProfile.bio,
+        profileImage: existingProfile.profileImage, // Pass the existing File object
+        selectedOfferedSkills: List.from(existingProfile.offeredSkills), // Copy lists
+        selectedDesiredSkills: List.from(existingProfile.desiredSkills),
+        // Initialize filters based on loaded options initially
+        filteredOfferedSkills: List.from(loadedSkillOptions),
+        filteredDesiredSkills: List.from(loadedSkillOptions),
+        isLoading: false, // Loading complete
+        errorMessage: errorLoadingSkills ?? '', // Show skill loading error if any
+      ));
+    } else {
+      // First-time setup: Use loaded skills, but fields are empty/default
+      debugPrint("ProfileSetupCubit: Initializing for NEW setup mode.");
+      emit(state.copyWith(
+        skillCategories: loadedCategories,
+        skillOptions: loadedSkillOptions,
+        filteredOfferedSkills: List.from(loadedSkillOptions),
+        filteredDesiredSkills: List.from(loadedSkillOptions),
+        isLoading: false, // Loading complete
+        errorMessage: errorLoadingSkills ?? '', // Show skill loading error if any
+        // Fields remain default/empty for new setup
       ));
     }
   }
@@ -273,5 +297,4 @@ class ProfileSetupCubit extends Cubit<ProfileSetupState> {
           emit(state.copyWith(isLoading: false, errorMessage: "Failed to save profile: $e"));
       }
   }
-
 }

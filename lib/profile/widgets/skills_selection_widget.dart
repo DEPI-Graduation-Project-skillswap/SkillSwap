@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:skill_swap/app_theme.dart';
 
-class SkillsSelectionWidget extends StatefulWidget {
+class SkillsSelectionWidget extends StatelessWidget {
   final String title;
   final List<String> filteredSkills;
   final List<String> selectedSkills;
-  final void Function(String) onFilter;
-  final void Function(String) onSelect;
+  final Function(String) onFilter;
+  final Function(String) onSelect;
 
   const SkillsSelectionWidget({
     super.key,
@@ -18,34 +18,17 @@ class SkillsSelectionWidget extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
-  _SkillsSelectionWidgetState createState() => _SkillsSelectionWidgetState();
-}
-
-class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // ignore: no_leading_underscores_for_local_identifiers
+    final TextEditingController _controller = TextEditingController();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Text(
-          widget.title.contains('Offer')
+          title.contains('Offer')
               ? 'Select skills you can teach or share with others'
               : 'Select skills you\'re interested in learning',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Apptheme.gray),
@@ -53,7 +36,7 @@ class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
         const SizedBox(height: 16),
         TextField(
           controller: _controller,
-          onChanged: widget.onFilter,
+          onChanged: onFilter,
           decoration: InputDecoration(
             hintText: 'Search skills',
             hintStyle: const TextStyle(color: Apptheme.hintTextColor),
@@ -70,14 +53,14 @@ class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
                     icon: const Icon(Icons.clear, color: Apptheme.gray),
                     onPressed: () {
                       _controller.clear();
-                      widget.onFilter('');
+                      onFilter('');
                     },
                   )
                 : null,
           ),
         ),
         const SizedBox(height: 16),
-        if (widget.selectedSkills.isNotEmpty)
+        if (selectedSkills.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -88,12 +71,12 @@ class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: widget.selectedSkills.map((skill) {
+              children: selectedSkills.map((skill) {
                 return Chip(
                   label: Text(skill),
                   backgroundColor: Apptheme.primaryColor.withOpacity(0.2),
                   deleteIconColor: Apptheme.primaryColor,
-                  onDeleted: () => widget.onSelect(skill),
+                  onDeleted: () => onSelect(skill),
                   labelStyle: const TextStyle(color: Apptheme.primaryColor),
                 );
               }).toList(),
@@ -105,14 +88,14 @@ class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
           child: ListView.builder(
             shrinkWrap: true,
             physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: widget.filteredSkills.length,
+            itemCount: filteredSkills.length,
             itemBuilder: (context, index) {
-              final skill = widget.filteredSkills[index];
-              final isSelected = widget.selectedSkills.contains(skill);
+              final skill = filteredSkills[index];
+              final isSelected = selectedSkills.contains(skill);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: InkWell(
-                  onTap: () => widget.onSelect(skill),
+                  onTap: () => onSelect(skill),
                   child: Row(
                     children: [
                       Container(
@@ -120,7 +103,7 @@ class _SkillsSelectionWidgetState extends State<SkillsSelectionWidget> {
                         height: 24,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isSelected ? Apptheme.primaryColor : Apptheme.white,
+                          color: isSelected ? Apptheme.primaryColor : Colors.transparent,
                           border: Border.all(
                             color: isSelected ? Apptheme.primaryColor : Apptheme.gray,
                             width: 1,

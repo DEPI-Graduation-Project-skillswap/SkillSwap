@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skill_swap/app_theme.dart'; // Assuming Apptheme is defined here
 import 'package:skill_swap/profile/cubits/profile_setup_cubit.dart';
+import 'package:skill_swap/profile/cubits/profile_cubit.dart'; // Import for ProfileState
 import 'package:skill_swap/profile/widgets/profile_picture_widget.dart';
 import 'package:skill_swap/profile/widgets/full_name_widget.dart'; // Assuming exists
 import 'package:skill_swap/profile/widgets/bio_widget.dart'; // Assuming exists
@@ -19,28 +20,18 @@ class ProfileSetupPage extends StatefulWidget {
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
-  // REMOVED: late ProfileSetupCubit _profileCubit; - Will be created by BlocProvider
   final _formKey = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    super.initState();
-    // REMOVED: _profileCubit = ProfileSetupCubit(); - BlocProvider handles creation
-  }
-
-  @override
-  void dispose() {
-    // REMOVED: _profileCubit.close(); - BlocProvider handles disposal
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Retrieve arguments *before* creating the BlocProvider
+    final existingProfileData = ModalRoute.of(context)?.settings.arguments as ProfileState?;
+
     // Use BlocProvider(create: ...) to manage the Cubit lifecycle
     return BlocProvider(
       // Creates the Cubit when the BlocProvider is inserted into the tree
-      // and disposes it when removed.
-      create: (context) => ProfileSetupCubit(),
+      // and disposes it when removed. Pass the existing profile data if available.
+      create: (context) => ProfileSetupCubit(existingProfile: existingProfileData),
       child: Scaffold(
         backgroundColor: Apptheme.white,
         appBar: AppBar(
@@ -67,11 +58,22 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               //   backgroundColor: Colors.red,
               // ));
             }
+            
+            // Handle navigation after successful save
+            // If you have a dedicated 'saveSuccess' flag in state:
+            // if (state.saveSuccess) {
+            //   // It's better to read the final state *after* save for navigation
+            //   final savedState = context.read<ProfileSetupCubit>().state;
+            //   Navigator.pushReplacementNamed(
+            //     context,
+            //     ProfilePage.routeName,
+            //     arguments: savedState, // Pass the *newly saved* state
+            //   );
+            // } else if (state.errorMessage.isNotEmpty && state.saveAttempted) {
+            //   // Show error if save was attempted but failed
+            // }
           },
           builder: (context, state) {
-            // Access the cubit instance provided by BlocProvider
-            // final profileCubit = context.read<ProfileSetupCubit>(); // Use context.read inside callbacks
-
             if (state.isLoading && state.skillOptions.isEmpty) { // Show loading only during initial data fetch
               return const Center(child: CircularProgressIndicator());
             }
@@ -108,7 +110,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Welcome to Skill Swap!',
+                                  existingProfileData != null 
+                                      ? 'Edit Your Profile'
+                                      : 'Welcome to Skill Swap!',
                                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Apptheme.primaryColor,
                                     fontWeight: FontWeight.bold,
@@ -118,7 +122,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'First, let\'s set up your profile. This will help connect you with people who match your skill interests.',
+                              existingProfileData != null
+                                  ? 'Update your profile information below.'
+                                  : 'First, let\'s set up your profile. This will help connect you with people who match your skill interests.',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -148,9 +154,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       const SizedBox(height: 24),
 
                       // Other Profile Fields
-                      const FullNameWidget(), // Needs implementation
+                      const FullNameWidget(), // Will use TextEditingController initialized with state.fullName
                       const SizedBox(height: 16),
-                      const BioWidget(), // Needs implementation
+                      const BioWidget(), // Will use TextEditingController initialized with state.bio
                       const SizedBox(height: 24),
 
                       // Skills Selection Widgets
