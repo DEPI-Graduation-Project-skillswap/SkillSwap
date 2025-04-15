@@ -12,6 +12,7 @@ import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
 
+//to mirege with develeopment
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
