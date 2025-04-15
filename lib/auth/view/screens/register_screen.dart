@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/app_theme.dart';
-import 'package:skill_swap/auth/login_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skill_swap/auth/view_model/auth_state.dart';
+import 'package:skill_swap/auth/view_model/auth_view_model.dart';
+import 'package:skill_swap/landing/landing_page1.dart';
+import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/auth/view/screens/login_screen.dart';
 
-import 'package:skill_swap/auth/verfication_screen.dart';
+import 'package:skill_swap/shared/app_validator.dart';
+import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 import 'package:skill_swap/widgets/default_text_form_fieled.dart';
 
@@ -53,7 +58,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isPassword: false,
                         controller: nameController,
                         validator: (value) {
-                          nameController.text = value ?? '';
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter your name';
                           }
@@ -62,15 +66,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: 20),
                       DefaultTextFormFieled(
-                        hintText: 'Enter your email or number',
+                        hintText: 'Enter your email',
                         icon: Icons.email,
-                        label: "Email or Phone number",
+                        label: "Email",
                         isPassword: false,
                         controller: emailController,
                         validator: (value) {
-                          emailController.text = value ?? '';
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your email or number';
+                          if (value == null || value.isEmpty) {
+                            return 'Email can not be empty';
+                          } else if (!AppValidator.isEmailValid(value)) {
+                            return "Invalid Email format";
                           }
                           return null;
                         },
@@ -83,7 +88,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isPassword: true,
                         controller: passwordController,
                         validator: (value) {
-                          passwordController.text = value ?? '';
                           if (value == null || value.trim().length < 6) {
                             return 'Password can not be less than 6 charactar';
                           }
@@ -98,7 +102,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         isPassword: true,
                         controller: repasswordController,
                         validator: (value) {
-                          repasswordController.text = value ?? '';
                           if (value != passwordController.text) {
                             return 'Password does not match';
                           }
@@ -106,9 +109,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       SizedBox(height: 40),
-                      DefaultElevetedBotton(
-                        onPressed: register,
-                        text: "Register",
+                      BlocListener<AuthViewModel, AuthState>(
+                        listener: (_, state) {
+                          if (state is RegisterLoading) {
+                            UiUtils.showLoading(context);
+                          } else if (state is RegisterError) {
+                            UiUtils.hideLoading(context);
+                            UiUtils.showSnackBar(context, state.message);
+                          } else if (state is RegisterSuccess) {
+                            UiUtils.hideLoading(context);
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed(LandingPage1.routeName);
+                          }
+                        },
+                        child: DefaultElevetedBotton(
+                          onPressed: register,
+                          text: "Register",
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
@@ -137,9 +155,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void register() {
     FocusScope.of(context).unfocus();
     if (formKey.currentState!.validate()) {
-      Navigator.of(
-        context,
-      ).pushNamed(VerficationScreen.routeName, arguments: emailController.text);
+      BlocProvider.of<AuthViewModel>(context).register(
+        name: nameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+      );
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/app_theme.dart';
+import 'package:skill_swap/shared/app_theme.dart';
 
 class DefaultTextFormFieled extends StatefulWidget {
   final String hintText;
@@ -29,6 +29,7 @@ class _DefaultTextFormFieledState extends State<DefaultTextFormFieled> {
     return TextFormField(
       validator: widget.validator,
       obscureText: isObscure,
+      controller: widget.controller,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: widget.label,

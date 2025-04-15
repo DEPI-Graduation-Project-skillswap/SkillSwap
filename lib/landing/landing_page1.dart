@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/app_theme.dart';
+import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/app_theme.dart';
-import 'package:skill_swap/auth/register_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skill_swap/auth/view_model/auth_state.dart';
+import 'package:skill_swap/auth/view_model/auth_view_model.dart';
+import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/auth/view/screens/register_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
+import 'package:skill_swap/shared/app_validator.dart';
+import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 import 'package:skill_swap/widgets/default_text_form_fieled.dart';
 
@@ -14,9 +19,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,14 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text('Connect, learn, and grow together '),
                 SizedBox(height: 20),
                 DefaultTextFormFieled(
-                  hintText: 'Enter your email or number',
+                  hintText: 'Enter your email',
                   icon: Icons.email,
-                  label: 'Email or Phone number',
+                  label: 'Email ',
                   isPassword: false,
-                  controller: nameController,
+                  controller: emailController,
                   validator: (value) {
-                    if (value == null || value.trim().length < 6) {
-                      return 'Enter a valid email';
+                    if (value == null || value.isEmpty) {
+                      return 'Email can not be empty';
+                    } else if (!AppValidator.isEmailValid(value)) {
+                      return "Invalid Email format";
                     }
                     return null;
                   },
@@ -67,16 +74,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 SizedBox(height: 20),
-                DefaultElevetedBotton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      FocusScope.of(context).unfocus();
+                BlocListener<AuthViewModel, AuthState>(
+                  listener: (_, state) {
+                    if (state is LoginLoading) {
+                      UiUtils.showLoading(context);
+                    } else if (state is LoginError) {
+                      UiUtils.hideLoading(context);
+                      UiUtils.showSnackBar(context, state.message);
+                    } else if (state is LoginSuccess) {
+                      UiUtils.hideLoading(context);
                       Navigator.of(
                         context,
                       ).pushReplacementNamed(LandingPage1.routeName);
                     }
                   },
-                  text: 'Login',
+                  child: DefaultElevetedBotton(onPressed: login, text: 'Login'),
                 ),
                 TextButton(
                   onPressed: () {},
@@ -110,5 +122,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void login() async {
+    FocusScope.of(context).unfocus();
+    print('email: "${emailController.text}"');
+    print('zzzzzzzzzzzzzzzzzzzzzzzzz');
+    print('password: "${passwordController.text}"');
+    if (formKey.currentState!.validate()) {
+      BlocProvider.of<AuthViewModel>(
+        context,
+      ).login(email: emailController.text, password: passwordController.text);
+    }
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "748673304649",
+    "project_id": "depi-skillswap",
+    "storage_bucket": "depi-skillswap.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748673304649:android:9f977716816c88bd3fd798",
+        "android_client_info": {
+          "package_name": "com.example.skill_swap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKnvgKq4Dx2Uq3mt34-hSUAjRDyQGHzgU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

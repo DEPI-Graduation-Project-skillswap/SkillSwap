@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
-import 'package:skill_swap/app_theme.dart';
+import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 
