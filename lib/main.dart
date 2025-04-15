@@ -7,10 +7,13 @@ import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
-import 'package:skill_swap/profile/profile_setup_page.dart'; // Import the profile page
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(
+    BlocProvider(create: (context) => AuthViewModel(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -28,11 +31,9 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName: (_) => const HomeScreen(),
         LandingPage2.routeName: (_) => const LandingPage2(),
         LandingPage3.routeName: (_) => const LandingPage3(),
-        ProfileSetupPage.routeName:
-            (_) => const ProfileSetupPage(), 
+        ProfileSetupPage.routeName: (_) => const ProfileSetupPage(),
       },
-      initialRoute:
-          ProfileSetupPage.routeName, 
+      initialRoute: ProfileSetupPage.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,
