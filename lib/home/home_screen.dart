@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/profile/profile_setup_page.dart'; // Import the profile page
+import 'package:skill_swap/profile/views/profile_setup_page.dart';
+import 'package:skill_swap/profile/views/profile_page.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,11 +21,21 @@ class HomeScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 20),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, ProfileSetupPage.routeName);
               },
               child: const Text('Go to Profile Setup'),
+            ),
+
+            const SizedBox(height: 16),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, ProfilePage.routeName);
+              },
+              child: const Text('Go to My Profile'),
             ),
           ],
         ),
