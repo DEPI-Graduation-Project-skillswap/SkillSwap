@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skill_swap/app_theme.dart';
 import 'package:skill_swap/auth/login_screen.dart';
 import 'package:skill_swap/auth/register_screen.dart';
@@ -7,6 +9,7 @@ import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
+import 'package:skill_swap/profile/profile_setup_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
