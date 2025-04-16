@@ -1,26 +1,36 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skill_swap/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/auth/view/screens/login_screen.dart';
 import 'package:skill_swap/auth/view/screens/register_screen.dart';
 import 'package:skill_swap/auth/view/screens/verfication_screen.dart';
 
 import 'package:skill_swap/auth/view_model/auth_view_model.dart';
-import 'package:skill_swap/firebase_options.dart';
+import 'package:skill_swap/shared/firebase_options.dart';
 import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
-import 'package:skill_swap/profile/views/profile_page.dart';
-import 'package:skill_swap/profile/views/profile_setup_page.dart';
+import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
+
+import 'package:skill_swap/user_profile/views/screens/user_profile_setup.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    BlocProvider(create: (context) => AuthViewModel(), child: const MyApp()),
+    MultiProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthViewModel(), child: Container()),
+        ChangeNotifierProvider(
+          create: (context) => UserProfileSetupViewModel(),
+        ),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 
@@ -39,10 +49,10 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName: (_) => const HomeScreen(),
         LandingPage2.routeName: (_) => const LandingPage2(),
         LandingPage3.routeName: (_) => const LandingPage3(),
-        ProfileSetupPage.routeName: (_) => const ProfileSetupPage(),
-        ProfilePage.routeName: (_) => ProfilePage(),
+
+        UserProfileSetup.routeName: (_) => const UserProfileSetup(),
       },
-      initialRoute: LoginScreen.routeName,
+      initialRoute: UserProfileSetup.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,

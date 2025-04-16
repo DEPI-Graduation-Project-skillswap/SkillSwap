@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/app_theme.dart';
-import 'package:skill_swap/home/home_screen.dart';
+import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/user_profile/views/screens/user_profile_setup.dart';
 
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 
@@ -68,7 +68,7 @@ class LandingPage3 extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(
                         context,
-                      ).pushReplacementNamed(HomeScreen.routeName);
+                      ).pushReplacementNamed(UserProfileSetup.routeName);
                     },
                     child: Text(
                       'Skip',
@@ -83,7 +83,7 @@ class LandingPage3 extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(
                           context,
-                        ).pushReplacementNamed(HomeScreen.routeName);
+                        ).pushReplacementNamed(UserProfileSetup.routeName);
                       },
                       text: "Next",
                     ),
