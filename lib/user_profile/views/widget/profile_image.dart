@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:skill_swap/shared/app_theme.dart';
-import 'package:skill_swap/user_profile/data/image_picker_fucntions.dart';
+import 'package:skill_swap/user_profile/data/data_source/image_picker_fucntions.dart';
 
 class ProfileImage extends StatefulWidget {
   ProfileImage({super.key});

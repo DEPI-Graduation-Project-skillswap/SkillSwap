@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
 
         UserProfileSetup.routeName: (_) => const UserProfileSetup(),
       },
-      initialRoute: UserProfileSetup.routeName,
+      initialRoute: LoginScreen.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,

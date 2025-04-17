@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
 import 'package:skill_swap/user_profile/views/widget/profile_image.dart';
 import 'package:skill_swap/user_profile/views/widget/skill_selector.dart';
+import 'package:skill_swap/user_profile/views/widget/warb_widget.dart';
+import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 import 'package:skill_swap/widgets/default_text_form_fieled.dart';
 
 class UserProfileSetup extends StatefulWidget {
@@ -18,11 +22,18 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
   TextEditingController nameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController offeredSkillsController = TextEditingController();
-
+  TextEditingController wantedSkillsController = TextEditingController();
+  bool firstbuild = true;
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<UserProfileSetupViewModel>(context);
-    viewModel.loadSkillsFromAssets(offeredSkillsController.text);
+    final offeredViewModel = Provider.of<UserProfileSetupViewModel>(context);
+    final wantedViewModel = Provider.of<UserProfileSetupViewModel>(context);
+    if (firstbuild) {
+      offeredViewModel.offredLoadSkillsFromAssets(offeredSkillsController.text);
+      wantedViewModel.wantedLoadSkillsFromAssets(wantedSkillsController.text);
+      firstbuild = false;
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -102,22 +113,69 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                 isPassword: false,
                 controller: bioController,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               DefaultTextFormFieled(
-                hintText: "Search for your skills",
-                label: 'Skills You Offer',
+                hintText: "Search for skills",
+                label: 'Skills you yffer',
                 isPassword: false,
                 controller: offeredSkillsController,
+                onPressed: offeredViewModel.offredLoadSkillsFromAssets,
               ),
+              WarbWidget(
+                skills: offeredViewModel.offerdSelectedSkills,
+                onSelectionChanged: offeredViewModel.offredonSelectionChanged,
+              ),
+              Divider(),
               SkillSelector(
-                skills: viewModel.showedSkills,
-                selectedSkills: viewModel.selectedSkills,
-                onSelectionChanged: viewModel.onSelectionChanged,
+                skills: offeredViewModel.offeredShowedSkills,
+                selectedSkills: offeredViewModel.offerdSelectedSkills,
+                onSelectionChanged: offeredViewModel.offredonSelectionChanged,
+              ),
+              SizedBox(height: 20),
+              DefaultTextFormFieled(
+                hintText: "Search for skills",
+                label: 'Skills you want',
+                isPassword: false,
+                controller: wantedSkillsController,
+                onPressed: wantedViewModel.wantedLoadSkillsFromAssets,
+              ),
+              WarbWidget(
+                skills: wantedViewModel.wantedSelectedSkills,
+                onSelectionChanged: wantedViewModel.wantedonSelectionChanged,
+              ),
+              Divider(),
+              SkillSelector(
+                skills: wantedViewModel.wantedShowedSkills,
+                selectedSkills: wantedViewModel.wantedSelectedSkills,
+                onSelectionChanged: wantedViewModel.wantedonSelectionChanged,
+              ),
+              SizedBox(height: 20),
+              DefaultElevetedBotton(
+                onPressed: () {
+                  final user = UserProfileModel(
+                    name: nameController.text,
+                    bio: bioController.text,
+                    offeredSkills: offeredViewModel.offerdSelectedSkills,
+                    wantedSkills: wantedViewModel.wantedSelectedSkills,
+                  );
+                  saveUserProfile(user);
+                  Navigator.of(
+                    context,
+                  ).pushReplacementNamed(HomeScreen.routeName);
+                },
+                text: 'Save and Continue',
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void saveUserProfile(UserProfileModel user) {
+    print(user.name);
+    print(user.bio);
+    print(user.offeredSkills);
+    print(user.wantedSkills);
   }
 }

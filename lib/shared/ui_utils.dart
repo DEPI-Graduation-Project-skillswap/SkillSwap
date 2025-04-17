@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:skill_swap/auth/loading_indecator.dart';
 import 'package:skill_swap/shared/app_theme.dart';
-import 'package:skill_swap/shared/widgets/loading_indecator.dart';
 
 class UiUtils {
   static void showLoading(BuildContext context) => showDialog(
@@ -15,7 +15,7 @@ class UiUtils {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const LoadingIndicator(),
+                  const LoadingIndecator(),
                   const SizedBox(height: 20),
                   Text(
                     'Loading...',

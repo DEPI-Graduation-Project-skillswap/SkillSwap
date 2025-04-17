@@ -8,6 +8,7 @@ class DefaultTextFormFieled extends StatefulWidget {
   final String? Function(String?)? validator;
   final bool isPassword;
   final TextEditingController controller;
+  final void Function(String)? onPressed;
   const DefaultTextFormFieled({
     super.key,
     required this.hintText,
@@ -16,6 +17,7 @@ class DefaultTextFormFieled extends StatefulWidget {
     this.validator,
     required this.isPassword,
     required this.controller,
+    this.onPressed,
   });
 
   @override
@@ -27,6 +29,7 @@ class _DefaultTextFormFieledState extends State<DefaultTextFormFieled> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onChanged: widget.onPressed,
       validator: widget.validator,
       obscureText: isObscure,
       controller: widget.controller,
