@@ -6,7 +6,7 @@ class UserProfileFirebase {
   static CollectionReference<UserProfileModel> getUserDetails(String userID) {
     return AuthFirebase.getuserCollections()
         .doc(userID)
-        .collection('userDetails')
+        .collection('userdetails')
         .withConverter(
           fromFirestore:
               (snapshot, _) => UserProfileModel.fromJson(snapshot.data()!),
@@ -21,10 +21,10 @@ class UserProfileFirebase {
   ) async {
     CollectionReference<UserProfileModel> userDetailsCollection =
         getUserDetails(userID);
-    DocumentReference<UserProfileModel> doc = userDetailsCollection.doc();
+    DocumentReference<UserProfileModel> doc = userDetailsCollection.doc(userID);
 
     userProfileModel.userDetailId = doc.id;
 
-    await userDetailsCollection.add(userProfileModel);
+    await doc.set(userProfileModel);
   }
 }

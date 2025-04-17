@@ -11,7 +11,10 @@ class UserProfileSetupViewModel extends ChangeNotifier {
   List<String> offeredShowedSkills = [];
   List<String> wantedSelectedSkills = [];
   List<String> wantedShowedSkills = [];
-
+  List<String> finalSelectedOfferedSkills = [];
+  List<String> finalSelectedWantedSkills = [];
+  bool isLoad = false;
+  UserProfileModel? currentuser;
   void offredonSelectionChanged(List<String> newSelectedSkills) {
     offerdSelectedSkills = newSelectedSkills;
     notifyListeners();
@@ -21,6 +24,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
     final String jsonString = await rootBundle.loadString(
       'assets/data/skills.json',
     );
+
     final jsonMap = jsonDecode(jsonString);
     skills = List<String>.from(jsonMap['skills']);
     if (searchKeyWord.isEmpty) {
@@ -37,6 +41,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
         offeredShowedSkills = offeredShowedSkills.take(5).toList();
       }
     }
+
     notifyListeners();
   }
 
@@ -65,13 +70,15 @@ class UserProfileSetupViewModel extends ChangeNotifier {
         wantedShowedSkills = wantedShowedSkills.take(5).toList();
       }
     }
+    offerdSelectedSkills = finalSelectedOfferedSkills;
+    wantedSelectedSkills = finalSelectedWantedSkills;
     notifyListeners();
   }
 
-  Future<void> addUserDetails(
-    String userID,
-    UserProfileModel userProfileModel,
-  ) async {
+  void addUserDetails(String userID, UserProfileModel userProfileModel) {
     UserProfileFirebase.addUserDetails(userID, userProfileModel);
+    currentuser = userProfileModel;
+    finalSelectedOfferedSkills = offerdSelectedSkills;
+    finalSelectedWantedSkills = wantedSelectedSkills;
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:skill_swap/auth/view_model/auth_view_model.dart';
 import 'package:skill_swap/home/home_screen.dart';
 import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
 import 'package:skill_swap/user_profile/views/widget/profile_image.dart';
@@ -33,6 +34,8 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
     if (firstbuild) {
       offeredViewModel.offredLoadSkillsFromAssets(offeredSkillsController.text);
       wantedViewModel.wantedLoadSkillsFromAssets(wantedSkillsController.text);
+      nameController.text = offeredViewModel.currentuser?.name ?? "";
+      bioController.text = offeredViewModel.currentuser?.bio ?? "";
       firstbuild = false;
     }
 
@@ -157,21 +160,30 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                 DefaultElevetedBotton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      String userId =
-                          Provider.of<AuthViewModel>(
-                            context,
-                            listen: false,
-                          ).currentUser!.id;
-                      final user = UserProfileModel(
-                        name: nameController.text,
-                        bio: bioController.text,
-                        offeredSkills: offeredViewModel.offerdSelectedSkills,
-                        wantedSkills: wantedViewModel.wantedSelectedSkills,
-                      );
-                      wantedViewModel.addUserDetails(userId, user);
-                      Navigator.of(
-                        context,
-                      ).pushReplacementNamed(HomeScreen.routeName);
+                      if (wantedViewModel.offerdSelectedSkills.isEmpty ||
+                          wantedViewModel.wantedSelectedSkills.isEmpty) {
+                        UiUtils.showSnackBar(
+                          context,
+                          'Add at least one skill to your offered or wanted skills',
+                        );
+                      } else {
+                        String userId =
+                            Provider.of<AuthViewModel>(
+                              context,
+                              listen: false,
+                            ).currentUser!.id;
+                        final user = UserProfileModel(
+                          userDetailId: userId,
+                          name: nameController.text,
+                          bio: bioController.text,
+                          offeredSkills: offeredViewModel.offerdSelectedSkills,
+                          wantedSkills: wantedViewModel.wantedSelectedSkills,
+                        );
+                        wantedViewModel.addUserDetails(userId, user);
+                        Navigator.of(
+                          context,
+                        ).pushReplacementNamed(HomeScreen.routeName);
+                      }
                     }
                   },
                   text: 'Save and Continue',

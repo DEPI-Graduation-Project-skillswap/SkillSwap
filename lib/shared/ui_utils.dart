@@ -32,7 +32,7 @@ class UiUtils {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: const Duration(seconds: 10),
+        duration: const Duration(seconds: 2),
         backgroundColor: Apptheme.red,
       ),
     );

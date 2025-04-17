@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/user_profile/views/screens/user_profile_setup.dart';
+import 'package:skill_swap/user_profile/views/screens/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,9 +23,9 @@ class HomeScreen extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, UserProfileSetup.routeName);
+                Navigator.pushNamed(context, Profile.routeName);
               },
-              child: const Text('Go to Profile Setup'),
+              child: const Text('Go to Profile '),
             ),
 
             const SizedBox(height: 16),

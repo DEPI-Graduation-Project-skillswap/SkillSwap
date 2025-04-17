@@ -5,9 +5,11 @@ class WarbWidget extends StatelessWidget {
     super.key,
     required this.skills,
     required this.onSelectionChanged,
+    this.isReadOnly = false,
   });
   final List<String> skills;
   final Function onSelectionChanged;
+  final bool isReadOnly;
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -19,11 +21,14 @@ class WarbWidget extends StatelessWidget {
                 (skill) => Chip(
                   label: Text(skill),
                   deleteIcon: const Icon(Icons.close, size: 18),
-                  onDeleted: () {
-                    final updated = skills;
-                    updated.remove(skill);
-                    onSelectionChanged(updated);
-                  },
+                  onDeleted:
+                      isReadOnly
+                          ? null
+                          : () {
+                            final updated = skills;
+                            updated.remove(skill);
+                            onSelectionChanged(updated);
+                          },
                 ),
               )
               .toList(),
