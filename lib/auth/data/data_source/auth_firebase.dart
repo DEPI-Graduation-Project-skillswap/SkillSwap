@@ -35,23 +35,16 @@ class AuthFirebase extends AuthDataSource {
     required String email,
     required String password,
   }) async {
-    print('xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-
     try {
       UserCredential credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      print('xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
 
       CollectionReference<UserModel> userCollection = getuserCollections();
-      print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
       DocumentSnapshot<UserModel> documentSnapshot =
           await userCollection.doc(credential.user!.uid).get();
-      print('xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
 
       return documentSnapshot.data()!;
     } catch (e) {
-      print(e);
-      print('xxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
       throw Exception(e);
     }
   }

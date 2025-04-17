@@ -29,13 +29,6 @@ class HomeScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
-
-            // ElevatedButton(
-            //   onPressed: () {
-            //     Navigator.pushNamed(context, ProfilePage.routeName);
-            //   },
-            //   child: const Text('Go to My Profile'),
-            // ),
           ],
         ),
       ),

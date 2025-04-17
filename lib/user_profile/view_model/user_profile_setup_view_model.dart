@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:skill_swap/user_profile/data/data_source/user_profile_firebase.dart';
+import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 
 class UserProfileSetupViewModel extends ChangeNotifier {
   List<String> skills = [];
@@ -64,5 +66,12 @@ class UserProfileSetupViewModel extends ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  Future<void> addUserDetails(
+    String userID,
+    UserProfileModel userProfileModel,
+  ) async {
+    UserProfileFirebase.addUserDetails(userID, userProfileModel);
   }
 }

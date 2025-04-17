@@ -126,9 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void login() async {
     FocusScope.of(context).unfocus();
-    print('email: "${emailController.text}"');
-    print('zzzzzzzzzzzzzzzzzzzzzzzzz');
-    print('password: "${passwordController.text}"');
+
     if (formKey.currentState!.validate()) {
       BlocProvider.of<AuthViewModel>(
         context,
