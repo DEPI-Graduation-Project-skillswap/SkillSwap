@@ -27,4 +27,23 @@ class UserProfileFirebase {
 
     await doc.set(userProfileModel);
   }
+
+  static Future<UserProfileModel?> getUserDetailsById(String userID) async {
+    try {
+      DocumentReference<UserProfileModel> doc = getUserDetails(
+        userID,
+      ).doc(userID);
+
+      DocumentSnapshot<UserProfileModel> snapshot = await doc.get();
+
+      if (snapshot.exists) {
+        return snapshot.data();
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+      return null;
+    }
+  }
 }

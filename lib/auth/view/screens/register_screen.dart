@@ -51,19 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       Text('Connect, learn, and grow together '),
                       SizedBox(height: 20),
-                      DefaultTextFormFieled(
-                        hintText: 'Enter your username',
-                        icon: Icons.person_2,
-                        label: "Username",
-                        isPassword: false,
-                        controller: nameController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
+
                       SizedBox(height: 20),
                       DefaultTextFormFieled(
                         hintText: 'Enter your email',

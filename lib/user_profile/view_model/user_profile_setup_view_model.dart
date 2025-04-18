@@ -13,8 +13,26 @@ class UserProfileSetupViewModel extends ChangeNotifier {
   List<String> wantedShowedSkills = [];
   List<String> finalSelectedOfferedSkills = [];
   List<String> finalSelectedWantedSkills = [];
-  bool isLoad = false;
+
   UserProfileModel? currentuser;
+  bool isLoad = false;
+  Future<void> loadUserProfileDetails(String userID) async {
+    isLoad = true;
+    notifyListeners();
+    final user = await UserProfileFirebase.getUserDetailsById(userID);
+    if (user != null) {
+      currentuser = user;
+      offerdSelectedSkills = user.offeredSkills ?? [];
+      wantedSelectedSkills = user.wantedSkills ?? [];
+      finalSelectedOfferedSkills = offerdSelectedSkills;
+      finalSelectedWantedSkills = wantedSelectedSkills;
+      await offredLoadSkillsFromAssets('');
+      await wantedLoadSkillsFromAssets('');
+      isLoad = false;
+      notifyListeners();
+    }
+  }
+
   void offredonSelectionChanged(List<String> newSelectedSkills) {
     offerdSelectedSkills = newSelectedSkills;
     notifyListeners();
@@ -75,10 +93,17 @@ class UserProfileSetupViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addUserDetails(String userID, UserProfileModel userProfileModel) {
-    UserProfileFirebase.addUserDetails(userID, userProfileModel);
+  Future<void> addUserDetails(
+    String userID,
+    UserProfileModel userProfileModel,
+  ) async {
+    isLoad = true;
+    notifyListeners();
+    await UserProfileFirebase.addUserDetails(userID, userProfileModel);
     currentuser = userProfileModel;
     finalSelectedOfferedSkills = offerdSelectedSkills;
     finalSelectedWantedSkills = wantedSelectedSkills;
+    isLoad = false;
+    notifyListeners();
   }
 }

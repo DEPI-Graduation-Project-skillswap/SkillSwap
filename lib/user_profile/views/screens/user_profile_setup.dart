@@ -9,6 +9,7 @@ import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model
 import 'package:skill_swap/user_profile/views/widget/profile_image.dart';
 import 'package:skill_swap/user_profile/views/widget/skill_selector.dart';
 import 'package:skill_swap/user_profile/views/widget/warb_widget.dart';
+import 'package:skill_swap/user_profile/views/widget/welcom_card.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 import 'package:skill_swap/widgets/default_text_form_fieled.dart';
 
@@ -25,8 +26,34 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
   TextEditingController bioController = TextEditingController();
   TextEditingController offeredSkillsController = TextEditingController();
   TextEditingController wantedSkillsController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
   bool firstbuild = true;
+  final formKey = GlobalKey<FormState>();
+  late final String userId;
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final UserProfileSetupViewModel viewModel =
+          Provider.of<UserProfileSetupViewModel>(context, listen: false);
+      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+      userId = authViewModel.currentUser!.id;
+      UiUtils.showLoading(context);
+      await viewModel.loadUserProfileDetails(userId);
+      UiUtils.hideLoading(context);
+      nameController.text = viewModel.currentuser?.name ?? '';
+      bioController.text = viewModel.currentuser?.bio ?? '';
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    bioController.dispose();
+    offeredSkillsController.dispose();
+    wantedSkillsController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final offeredViewModel = Provider.of<UserProfileSetupViewModel>(context);
@@ -38,7 +65,6 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
       bioController.text = offeredViewModel.currentuser?.bio ?? "";
       firstbuild = false;
     }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -55,47 +81,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
             key: formKey,
             child: Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Apptheme.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Apptheme.primaryColor.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.waving_hand,
-                            color: Apptheme.primaryColor,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Welcome to Skill Swap!',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              color: Apptheme.primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'First, let\'s set up your profile. This will help connect you with people who match your skill interests.',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
+                WelcomCard(),
                 const SizedBox(height: 24),
                 ProfileImage(),
                 const SizedBox(height: 16),
@@ -106,6 +92,10 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Name is required';
+                    } else if (value.trim().length < 3) {
+                      return 'Name must be at least 3 characters long';
+                    } else if (value.trim().length > 20) {
+                      return 'Name must be less than 20 characters long';
                     }
                     return null;
                   },
@@ -123,7 +113,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                 const SizedBox(height: 20),
                 DefaultTextFormFieled(
                   hintText: "Search for skills",
-                  label: 'Skills you yffer',
+                  label: 'Skills you offer',
                   isPassword: false,
                   controller: offeredSkillsController,
                   onPressed: offeredViewModel.offredLoadSkillsFromAssets,
@@ -158,7 +148,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                 ),
                 SizedBox(height: 20),
                 DefaultElevetedBotton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       if (wantedViewModel.offerdSelectedSkills.isEmpty ||
                           wantedViewModel.wantedSelectedSkills.isEmpty) {
@@ -167,23 +157,31 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                           'Add at least one skill to your offered or wanted skills',
                         );
                       } else {
-                        String userId =
-                            Provider.of<AuthViewModel>(
-                              context,
-                              listen: false,
-                            ).currentUser!.id;
-                        final user = UserProfileModel(
-                          userDetailId: userId,
-                          name: nameController.text,
-                          bio: bioController.text,
-                          offeredSkills: offeredViewModel.offerdSelectedSkills,
-                          wantedSkills: wantedViewModel.wantedSelectedSkills,
-                        );
-                        wantedViewModel.addUserDetails(userId, user);
-                        Navigator.of(
-                          context,
-                        ).pushReplacementNamed(HomeScreen.routeName);
+                        UiUtils.showLoading(context);
+                        try {
+                          final user = UserProfileModel(
+                            userDetailId: userId,
+                            name: nameController.text,
+                            bio: bioController.text,
+                            offeredSkills: wantedViewModel.offerdSelectedSkills,
+                            wantedSkills: wantedViewModel.wantedSelectedSkills,
+                          );
+
+                          await wantedViewModel.addUserDetails(userId, user);
+                          UiUtils.hideLoading(context);
+                          Navigator.of(
+                            context,
+                          ).pushReplacementNamed(HomeScreen.routeName);
+                        } catch (e) {
+                          UiUtils.hideLoading(context);
+                          UiUtils.showSnackBar(
+                            context,
+                            'Something went wrong. Please try again.',
+                          );
+                        }
                       }
+                    } else {
+                      UiUtils.showSnackBar(context, 'Complete your profile');
                     }
                   },
                   text: 'Save and Continue',
