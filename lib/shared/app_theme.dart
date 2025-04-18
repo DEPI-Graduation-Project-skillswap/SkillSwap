@@ -12,8 +12,16 @@ class Apptheme {
   static const Color lightblue = Color(0xff0D3B66);
   static const Color red = Color(0xffFF0101);
   static ThemeData lightTheme = ThemeData(
-    appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: white),
     primaryColor: primaryColor,
+    appBarTheme: AppBarTheme(centerTitle: true, backgroundColor: white),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: white,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: gray,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      type: BottomNavigationBarType.fixed,
+    ),
     scaffoldBackgroundColor: white,
     textTheme: TextTheme(
       titleSmall: TextStyle(

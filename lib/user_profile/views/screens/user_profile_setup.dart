@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_swap/auth/view_model/auth_view_model.dart';
-import 'package:skill_swap/home/home_screen.dart';
+import 'package:skill_swap/home_screen.dart';
 import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';

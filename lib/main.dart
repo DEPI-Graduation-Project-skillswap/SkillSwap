@@ -9,7 +9,7 @@ import 'package:skill_swap/auth/view/screens/verfication_screen.dart';
 
 import 'package:skill_swap/auth/view_model/auth_view_model.dart';
 import 'package:skill_swap/shared/firebase_options.dart';
-import 'package:skill_swap/home/home_screen.dart';
+import 'package:skill_swap/home_screen.dart';
 import 'package:skill_swap/landing/landing_page1.dart';
 import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         Profile.routeName: (_) => const Profile(),
         UserProfileSetup.routeName: (_) => const UserProfileSetup(),
       },
-      initialRoute: LoginScreen.routeName,
+      initialRoute: HomeScreen.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,
