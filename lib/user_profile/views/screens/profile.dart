@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
@@ -11,21 +10,21 @@ import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 class Profile extends StatelessWidget {
   static const String routeName = '/profile';
   const Profile({super.key});
-
   @override
   Widget build(BuildContext context) {
-    UserProfileModel user =
-        Provider.of<UserProfileSetupViewModel>(context).currentuser ??
-        UserProfileModel(
-          name: 'name',
-          bio: 'bio',
-          offeredSkills: [],
-          wantedSkills: [],
-        );
+    final userProfileModel =
+        ModalRoute.of(context)?.settings.arguments as UserProfileModel?;
+    late UserProfileModel user;
+    if (userProfileModel == null) {
+      user = UserProfileSetupViewModel.currentuser!;
+    } else {
+      user = userProfileModel;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'My Profile',
+          ' Profile',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -67,7 +66,7 @@ class Profile extends StatelessWidget {
               children: [
                 Icon(Icons.local_offer_outlined, color: Apptheme.primaryColor),
                 Text(
-                  ' Skills I Offer',
+                  ' Offerd Skills',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     color: Apptheme.primaryColor,
                     fontWeight: FontWeight.bold,
@@ -86,7 +85,7 @@ class Profile extends StatelessWidget {
               children: [
                 Icon(Icons.local_offer_outlined, color: Apptheme.primaryColor),
                 Text(
-                  ' Skills I Want To Learn',
+                  ' Wanted Skills',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     color: Apptheme.primaryColor,
                     fontWeight: FontWeight.bold,
@@ -101,12 +100,14 @@ class Profile extends StatelessWidget {
               isReadOnly: true,
             ),
             Spacer(),
-            DefaultElevetedBotton(
-              text: 'Edit Profile',
-              onPressed: () {
-                Navigator.of(context).pushNamed(UserProfileSetup.routeName);
-              },
-            ),
+            userProfileModel == null
+                ? DefaultElevetedBotton(
+                  text: 'Edit Profile',
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(UserProfileSetup.routeName);
+                  },
+                )
+                : DefaultElevetedBotton(text: 'Add Friend', onPressed: () {}),
           ],
         ),
       ),

@@ -3,6 +3,8 @@ import 'package:skill_swap/home/view/widgets/home_tap.dart';
 import 'package:skill_swap/requests/requests_tap.dart';
 import 'package:skill_swap/search/search_tap.dart';
 import 'package:skill_swap/settings/settings_tap.dart';
+import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/user_profile/views/screens/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +22,39 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SkillSwap', style: Theme.of(context).textTheme.titleLarge),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 20),
+          child: Text(
+            'SkillSwap',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge!.copyWith(color: Apptheme.primaryColor),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_outlined, size: 30),
+            onPressed: () {},
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.chat_outlined, size: 30),
+          ),
+          Padding(
+            padding: EdgeInsetsDirectional.only(end: 20, start: 10),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, Profile.routeName);
+              },
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage('assets/images/account_image.png'),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
@@ -52,23 +86,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// bottomNavigationBar: BottomAppBar(
-//         shape: CircularNotchedRectangle(),
-//         notchMargin: 10,
-//         color: Appthem.white,
-//         padding: EdgeInsets.all(0),
-//         clipBehavior: Clip.antiAliasWithSaveLayer,
-//         child: BottomNavigationBar(
-//             items: [
-//               BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Tasks'),
-//               BottomNavigationBarItem(
-//                   icon: Icon(Icons.settings), label: 'Settings'),
-//             ],
-//             elevation: 0,
-//             currentIndex: selectedIndex,
-//             onTap: (index) {
-//               setState(() {
-//                 selectedIndex = index;
-//               });
-//             }),
-//       ),

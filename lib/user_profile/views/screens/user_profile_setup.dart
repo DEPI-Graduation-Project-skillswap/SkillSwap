@@ -34,13 +34,13 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final UserProfileSetupViewModel viewModel =
           Provider.of<UserProfileSetupViewModel>(context, listen: false);
-      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-      userId = authViewModel.currentUser!.id;
+
+      userId = AuthViewModel.currentUser!.id;
       UiUtils.showLoading(context);
       await viewModel.loadUserProfileDetails(userId);
       UiUtils.hideLoading(context);
-      nameController.text = viewModel.currentuser?.name ?? '';
-      bioController.text = viewModel.currentuser?.bio ?? '';
+      nameController.text = UserProfileSetupViewModel.currentuser?.name ?? '';
+      bioController.text = UserProfileSetupViewModel.currentuser?.bio ?? '';
     });
     super.initState();
   }
@@ -61,8 +61,8 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
     if (firstbuild) {
       offeredViewModel.offredLoadSkillsFromAssets(offeredSkillsController.text);
       wantedViewModel.wantedLoadSkillsFromAssets(wantedSkillsController.text);
-      nameController.text = offeredViewModel.currentuser?.name ?? "";
-      bioController.text = offeredViewModel.currentuser?.bio ?? "";
+      nameController.text = UserProfileSetupViewModel.currentuser?.name ?? "";
+      bioController.text = UserProfileSetupViewModel.currentuser?.bio ?? "";
       firstbuild = false;
     }
     return Scaffold(
@@ -93,9 +93,9 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Name is required';
                     } else if (value.trim().length < 3) {
-                      return 'Name must be at least 3 characters long';
+                      return 'Name is too short';
                     } else if (value.trim().length > 20) {
-                      return 'Name must be less than 20 characters long';
+                      return 'Name is too long';
                     }
                     return null;
                   },
@@ -109,6 +109,16 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                   label: "Bio",
                   isPassword: false,
                   controller: bioController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Bio is required';
+                    } else if (value.trim().length < 3) {
+                      return 'Bio is too short';
+                    } else if (value.trim().length > 25) {
+                      return 'Bio is too Long';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 20),
                 DefaultTextFormFieled(
@@ -169,9 +179,10 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
 
                           await wantedViewModel.addUserDetails(userId, user);
                           UiUtils.hideLoading(context);
-                          Navigator.of(
-                            context,
-                          ).pushReplacementNamed(HomeScreen.routeName);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            HomeScreen.routeName,
+                            (route) => false,
+                          );
                         } catch (e) {
                           UiUtils.hideLoading(context);
                           UiUtils.showSnackBar(

@@ -11,7 +11,7 @@ class AuthViewModel extends Cubit<AuthState> {
       authDataSource: ServerLocator.authDataSource,
     );
   }
-  UserModel? currentUser;
+  static UserModel? currentUser;
   Future<void> login({required String email, required String password}) async {
     emit(LoginLoading());
     try {

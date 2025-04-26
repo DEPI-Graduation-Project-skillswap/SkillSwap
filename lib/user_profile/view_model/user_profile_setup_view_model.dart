@@ -14,7 +14,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
   List<String> finalSelectedOfferedSkills = [];
   List<String> finalSelectedWantedSkills = [];
 
-  UserProfileModel? currentuser;
+  static UserProfileModel? currentuser;
   bool isLoad = false;
   Future<void> loadUserProfileDetails(String userID) async {
     isLoad = true;
