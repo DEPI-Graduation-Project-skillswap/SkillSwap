@@ -35,6 +35,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
 
   void offredonSelectionChanged(List<String> newSelectedSkills) {
     offerdSelectedSkills = newSelectedSkills;
+    finalSelectedOfferedSkills = offerdSelectedSkills;
     notifyListeners();
   }
 
@@ -65,6 +66,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
 
   void wantedonSelectionChanged(List<String> newSelectedSkills) {
     wantedSelectedSkills = newSelectedSkills;
+    finalSelectedWantedSkills = wantedSelectedSkills;
     notifyListeners();
   }
 
@@ -88,8 +90,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
         wantedShowedSkills = wantedShowedSkills.take(5).toList();
       }
     }
-    offerdSelectedSkills = finalSelectedOfferedSkills;
-    wantedSelectedSkills = finalSelectedWantedSkills;
+
     notifyListeners();
   }
 
