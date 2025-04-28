@@ -42,7 +42,6 @@ class UserProfileFirebase {
         return null;
       }
     } catch (e) {
-      print("Error fetching user details: $e");
       return null;
     }
   }

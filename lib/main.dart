@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_swap/settings/view_model/settings_provider.dart';
 import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/auth/view/screens/login_screen.dart';
 import 'package:skill_swap/auth/view/screens/register_screen.dart';
@@ -29,6 +30,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => UserProfileSetupViewModel(),
         ),
+        ChangeNotifierProvider(create: (context) => SettingsProvider()),
       ],
       child: MyApp(),
     ),
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
         Profile.routeName: (_) => const Profile(),
         UserProfileSetup.routeName: (_) => const UserProfileSetup(),
       },
-      initialRoute: LoginScreen.routeName,
+      initialRoute: HomeScreen.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,
