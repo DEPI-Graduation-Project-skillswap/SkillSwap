@@ -3,12 +3,12 @@ import 'package:skill_swap/home/view/widgets/account_cart_eleveted_bottom.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 
 class AccountCard extends StatelessWidget {
-  const AccountCard({super.key, required this.userProfileModel});
-  final UserProfileModel userProfileModel;
-
+  const AccountCard({super.key, required this.user, required this.onPressed});
+  final VoidCallback? onPressed;
+  final UserProfileModel user;
   @override
   Widget build(BuildContext context) {
-    final skills = userProfileModel.offeredSkills ?? [];
+    final skills = user.offeredSkills ?? [];
     final showMore = skills.length > 4;
     final displayedSkills = showMore ? skills.take(3).toList() : skills;
 
@@ -39,13 +39,13 @@ class AccountCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                userProfileModel.name ?? '',
+                user.name ?? '',
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium!.copyWith(fontSize: 20),
               ),
               Text(
-                userProfileModel.bio ?? '',
+                user.bio ?? '',
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   fontSize: 18,
                   fontStyle: FontStyle.italic,
@@ -95,7 +95,7 @@ class AccountCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: AccountCartElevetedBottom(
               text: 'Add Friend',
-              onPressed: () {},
+              onPressed: onPressed,
             ),
           ),
         ],

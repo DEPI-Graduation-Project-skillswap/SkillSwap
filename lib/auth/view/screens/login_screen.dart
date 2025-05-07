@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ).pushReplacementNamed(LandingPage1.routeName);
                     }
                   },
-                  child: DefaultElevetedBotton(onPressed: login, text: 'Login'),
+                  child: DefaultElevatedButton(onPressed: login, text: 'Login'),
                 ),
                 TextButton(
                   onPressed: () {},

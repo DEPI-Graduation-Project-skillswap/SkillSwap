@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_swap/home/view_model/home_view_model.dart';
+import 'package:skill_swap/requests/view_model.dart/friend_requst_cubit.dart';
 import 'package:skill_swap/settings/view_model/settings_provider.dart';
 import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/auth/view/screens/login_screen.dart';
@@ -27,6 +29,8 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         BlocProvider(create: (context) => AuthViewModel()),
+        BlocProvider(create: (context) => HomeViewModel()),
+        BlocProvider(create: (context) => FriendRequestsCubit()),
         ChangeNotifierProvider(
           create: (context) => UserProfileSetupViewModel(),
         ),
@@ -54,7 +58,7 @@ class MyApp extends StatelessWidget {
         Profile.routeName: (_) => const Profile(),
         UserProfileSetup.routeName: (_) => const UserProfileSetup(),
       },
-      initialRoute: HomeScreen.routeName,
+      initialRoute: LoginScreen.routeName,
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,

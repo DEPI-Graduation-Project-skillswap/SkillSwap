@@ -6,6 +6,8 @@ class HomeInitialState extends HomeState {}
 
 class HomeLoadingState extends HomeState {}
 
+class HomeEmptyState extends HomeState {}
+
 class HomeSuccessState extends HomeState {
   List<UserProfileModel> users = [];
   HomeSuccessState({required this.users});

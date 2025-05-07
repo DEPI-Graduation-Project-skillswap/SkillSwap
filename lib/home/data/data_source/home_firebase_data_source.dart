@@ -6,7 +6,7 @@ import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
 
 class HomeFirebaseDataSource extends HomeDataSource {
-  static CollectionReference<UserModel> getuserCollections() =>
+  static CollectionReference<UserModel> getUserCollections() =>
       FirebaseFirestore.instance
           .collection('users')
           .withConverter<UserModel>(
@@ -16,7 +16,7 @@ class HomeFirebaseDataSource extends HomeDataSource {
           );
 
   static CollectionReference<UserProfileModel> getUserDetails(String userID) {
-    return getuserCollections()
+    return getUserCollections()
         .doc(userID)
         .collection('userdetails')
         .withConverter(
@@ -30,10 +30,10 @@ class HomeFirebaseDataSource extends HomeDataSource {
   @override
   Future<List<UserProfileModel>> getHomeUsers() async {
     List<String> currentUserWantedSkills =
-        UserProfileSetupViewModel.currentuser!.wantedSkills!;
+        UserProfileSetupViewModel.currentUser!.wantedSkills!;
     String currentUserID = AuthViewModel.currentUser!.id;
     try {
-      final usersSnapshot = await getuserCollections().get();
+      final usersSnapshot = await getUserCollections().get();
       List<UserProfileModel> userProfiles = [];
 
       for (var userDoc in usersSnapshot.docs) {

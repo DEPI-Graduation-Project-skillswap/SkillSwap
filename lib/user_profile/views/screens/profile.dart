@@ -16,7 +16,7 @@ class Profile extends StatelessWidget {
         ModalRoute.of(context)?.settings.arguments as UserProfileModel?;
     late UserProfileModel user;
     if (userProfileModel == null) {
-      user = UserProfileSetupViewModel.currentuser!;
+      user = UserProfileSetupViewModel.currentUser!;
     } else {
       user = userProfileModel;
     }
@@ -101,13 +101,13 @@ class Profile extends StatelessWidget {
             ),
             Spacer(),
             userProfileModel == null
-                ? DefaultElevetedBotton(
+                ? DefaultElevatedButton(
                   text: 'Edit Profile',
                   onPressed: () {
                     Navigator.of(context).pushNamed(UserProfileSetup.routeName);
                   },
                 )
-                : DefaultElevetedBotton(text: 'Add Friend', onPressed: () {}),
+                : DefaultElevatedButton(text: 'Add Friend', onPressed: () {}),
           ],
         ),
       ),

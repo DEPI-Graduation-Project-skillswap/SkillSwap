@@ -111,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ).pushReplacementNamed(LandingPage1.routeName);
                           }
                         },
-                        child: DefaultElevetedBotton(
+                        child: DefaultElevatedButton(
                           onPressed: register,
                           text: "Register",
                         ),

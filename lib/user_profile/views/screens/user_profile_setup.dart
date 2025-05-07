@@ -39,8 +39,8 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
       UiUtils.showLoading(context);
       await viewModel.loadUserProfileDetails(userId);
       UiUtils.hideLoading(context);
-      nameController.text = UserProfileSetupViewModel.currentuser?.name ?? '';
-      bioController.text = UserProfileSetupViewModel.currentuser?.bio ?? '';
+      nameController.text = UserProfileSetupViewModel.currentUser?.name ?? '';
+      bioController.text = UserProfileSetupViewModel.currentUser?.bio ?? '';
     });
     super.initState();
   }
@@ -61,8 +61,8 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
     if (firstbuild) {
       offeredViewModel.offredLoadSkillsFromAssets(offeredSkillsController.text);
       wantedViewModel.wantedLoadSkillsFromAssets(wantedSkillsController.text);
-      nameController.text = UserProfileSetupViewModel.currentuser?.name ?? "";
-      bioController.text = UserProfileSetupViewModel.currentuser?.bio ?? "";
+      nameController.text = UserProfileSetupViewModel.currentUser?.name ?? "";
+      bioController.text = UserProfileSetupViewModel.currentUser?.bio ?? "";
       firstbuild = false;
     }
     return Scaffold(
@@ -157,7 +157,7 @@ class _UserProfileSetupState extends State<UserProfileSetup> {
                   onSelectionChanged: wantedViewModel.wantedonSelectionChanged,
                 ),
                 SizedBox(height: 20),
-                DefaultElevetedBotton(
+                DefaultElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       if (wantedViewModel.offerdSelectedSkills.isEmpty ||

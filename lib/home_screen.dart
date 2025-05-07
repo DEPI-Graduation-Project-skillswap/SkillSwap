@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skill_swap/home/view/widgets/home_tap.dart';
-import 'package:skill_swap/requests/requests_tap.dart';
+import 'package:skill_swap/requests/view/screens/requests_tap.dart';
 import 'package:skill_swap/search/search_tap.dart';
 import 'package:skill_swap/settings/view/settings_tap.dart';
 import 'package:skill_swap/shared/app_theme.dart';

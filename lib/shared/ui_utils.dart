@@ -28,12 +28,16 @@ class UiUtils {
         ),
   );
   static void hideLoading(BuildContext context) => Navigator.of(context).pop();
-  static void showSnackBar(BuildContext context, String message) {
+  static void showSnackBar(
+    BuildContext context,
+    String message, {
+    Color color = Apptheme.red,
+  }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),
-        backgroundColor: Apptheme.red,
+        backgroundColor: color,
       ),
     );
   }

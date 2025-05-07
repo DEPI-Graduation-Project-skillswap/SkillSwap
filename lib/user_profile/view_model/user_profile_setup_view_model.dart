@@ -14,14 +14,14 @@ class UserProfileSetupViewModel extends ChangeNotifier {
   List<String> finalSelectedOfferedSkills = [];
   List<String> finalSelectedWantedSkills = [];
 
-  static UserProfileModel? currentuser;
+  static UserProfileModel? currentUser;
   bool isLoad = false;
   Future<void> loadUserProfileDetails(String userID) async {
     isLoad = true;
     notifyListeners();
     final user = await UserProfileFirebase.getUserDetailsById(userID);
     if (user != null) {
-      currentuser = user;
+      currentUser = user;
       offerdSelectedSkills = user.offeredSkills ?? [];
       wantedSelectedSkills = user.wantedSkills ?? [];
       finalSelectedOfferedSkills = offerdSelectedSkills;
@@ -101,7 +101,7 @@ class UserProfileSetupViewModel extends ChangeNotifier {
     isLoad = true;
     notifyListeners();
     await UserProfileFirebase.addUserDetails(userID, userProfileModel);
-    currentuser = userProfileModel;
+    currentUser = userProfileModel;
     finalSelectedOfferedSkills = offerdSelectedSkills;
     finalSelectedWantedSkills = wantedSelectedSkills;
     isLoad = false;

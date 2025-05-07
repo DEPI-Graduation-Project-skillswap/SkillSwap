@@ -127,7 +127,7 @@ class _VerficationScreenState extends State<VerficationScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  DefaultElevetedBotton(
+                  DefaultElevatedButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         focusNode.unfocus();

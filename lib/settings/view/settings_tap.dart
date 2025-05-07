@@ -4,6 +4,7 @@ import 'package:skill_swap/auth/view/screens/login_screen.dart';
 import 'package:skill_swap/settings/view/widgets/logout_dialog.dart';
 import 'package:skill_swap/settings/view_model/settings_provider.dart';
 import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
 
 class SettingsTap extends StatefulWidget {
@@ -25,19 +26,19 @@ class _SettingsTapState extends State<SettingsTap> {
         children: [
           Text("Settings", style: Theme.of(context).textTheme.titleLarge),
           Text(
-            'Customize Your SkillSwap Expeirence',
+            'Customize Your SkillSwap Experience',
             style: Theme.of(
               context,
             ).textTheme.titleMedium!.copyWith(color: Colors.grey.shade600),
           ),
-          SizedBox(height: 50),
+          const SizedBox(height: 50),
           Text(
             "Language",
             style: Theme.of(
               context,
             ).textTheme.titleLarge!.copyWith(fontSize: 20),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
@@ -56,26 +57,24 @@ class _SettingsTapState extends State<SettingsTap> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   activeColor: Apptheme.primaryColor,
-                  contentPadding: EdgeInsets.all(2),
+                  contentPadding: const EdgeInsets.all(2),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Divider(indent: 16, endIndent: 16),
                 ),
                 RadioListTile<String>(
                   value: 'Arabic',
                   groupValue: settingsProvider.languageCode,
                   onChanged: (value) {
-                    setState(() {
-                      settingsProvider.changeLanguage("Arabic");
-                    });
+                    settingsProvider.changeLanguage("Arabic");
                   },
                   title: Text(
                     'Arabic',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   activeColor: Apptheme.primaryColor,
-                  contentPadding: EdgeInsets.all(2),
+                  contentPadding: const EdgeInsets.all(2),
                 ),
               ],
             ),
@@ -98,15 +97,19 @@ class _SettingsTapState extends State<SettingsTap> {
               children: [
                 Row(
                   children: [
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     settingsProvider.isDarkMode
-                        ? Icon(
+                        ? const Icon(
                           Icons.nightlight_round,
                           color: Colors.purpleAccent,
                           size: 30,
                         )
-                        : Icon(Icons.sunny, color: Colors.yellow, size: 30),
-                    SizedBox(width: 20),
+                        : const Icon(
+                          Icons.sunny,
+                          color: Colors.yellow,
+                          size: 30,
+                        ),
+                    const SizedBox(width: 20),
                     Text(
                       "Dark Mode",
                       style: Theme.of(
@@ -115,7 +118,6 @@ class _SettingsTapState extends State<SettingsTap> {
                     ),
                   ],
                 ),
-
                 Switch(
                   value: settingsProvider.isDarkMode,
                   onChanged: (value) {
@@ -126,16 +128,22 @@ class _SettingsTapState extends State<SettingsTap> {
               ],
             ),
           ),
-          SizedBox(height: 20),
-          DefaultElevetedBotton(
+          const SizedBox(height: 20),
+          DefaultElevatedButton(
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) {
                   return LogoutDialog(
                     onPressed: () {
-                      settingsProvider.signOut();
-                      logout();
+                      try {
+                        settingsProvider.signOut();
+                        logout();
+                      } catch (e) {
+                        if (mounted) {
+                          UiUtils.showSnackBar(context, "Something went wrong");
+                        }
+                      }
                     },
                   );
                 },
@@ -151,7 +159,7 @@ class _SettingsTapState extends State<SettingsTap> {
   }
 
   void logout() {
-    Navigator.pop(context);
+    Navigator.of(context, rootNavigator: true).pop(); // Close dialog
     Navigator.pushReplacementNamed(context, LoginScreen.routeName);
   }
 }
