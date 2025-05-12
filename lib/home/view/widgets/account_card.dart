@@ -38,32 +38,35 @@ class AccountCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // --- Image Header Stack --- (Keep as is)
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // ... Image ClipRRect ...
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      // FIX IS HERE
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      // *** ADD 'colors:' before the list ***
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
+          SizedBox(
+            height: 150,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // ... Image ClipRRect ...
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 80,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        // FIX IS HERE
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        // *** ADD 'colors:' before the list ***
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // ... Name Positioned ...
-            ],
+                // ... Name Positioned ...
+              ],
+            ),
           ),
           // --- Content Section --- (Keep as is)
           Padding(

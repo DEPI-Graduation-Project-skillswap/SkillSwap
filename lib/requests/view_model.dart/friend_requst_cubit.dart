@@ -75,7 +75,7 @@ class FriendRequestsCubit extends Cubit<FriendRequestsState> {
     final recipientId = recipient.userDetailId;
     final currentUserId = AuthViewModel.currentUser?.id;
 
-    if (recipientId == null || currentUserId == null) {
+    if (currentUserId == null) {
       print("Error: Missing user IDs for friend request.");
       return false; // Return false
     }
