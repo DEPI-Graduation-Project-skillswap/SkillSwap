@@ -3,5 +3,6 @@
     "IDX.aI.enableCodebaseIndexing": true,
     "cSpell.words": [
         "Apptheme"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

@@ -1,0 +1,1 @@
+18:20:20.416 [INFO] [org.gradle.internal.nativeintegration.services.NativeServices] Initialized native services in: /home/hazem/.gradle/native
