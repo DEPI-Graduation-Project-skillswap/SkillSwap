@@ -145,22 +145,36 @@ class FriendRequestFirebaseDataSource extends FriendRequestsDataSource {
   @override
   Future<void> declineFriendRequest(FriendRequestModel request) async {
     final currentUserId = UserProfileSetupViewModel.currentUser!.userDetailId;
-    final senderId = request.senderId;
 
     try {
-      // Remove from requestsReceived
-      await getUserCollections()
-          .doc(currentUserId)
-          .collection('requestsReceived')
-          .doc(senderId)
-          .delete();
+      // Cancel outgoing request
+      if (request.senderId == currentUserId) {
+        // Current user is the sender (cancel request)
+        await getUserCollections()
+            .doc(currentUserId)
+            .collection('requestsSent')
+            .doc(request.receiverId)
+            .delete();
 
-      // Remove from sender's requestsSent
-      await getUserCollections()
-          .doc(senderId)
-          .collection('requestsSent')
-          .doc(currentUserId)
-          .delete();
+        await getUserCollections()
+            .doc(request.receiverId)
+            .collection('requestsReceived')
+            .doc(currentUserId)
+            .delete();
+      } else {
+        // Current user is the receiver (decline request)
+        await getUserCollections()
+            .doc(currentUserId)
+            .collection('requestsReceived')
+            .doc(request.senderId)
+            .delete();
+
+        await getUserCollections()
+            .doc(request.senderId)
+            .collection('requestsSent')
+            .doc(currentUserId)
+            .delete();
+      }
     } catch (e) {
       throw Exception("Failed to decline friend request: $e");
     }
