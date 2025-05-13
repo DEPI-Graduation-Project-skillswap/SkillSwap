@@ -11,7 +11,9 @@ import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/user_profile/views/screens/profile.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int? initialTabIndex;
+  
+  const HomeScreen({super.key, this.initialTabIndex});
   static const String routeName = '/home';
 
   @override
@@ -28,6 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Set initial tab index if provided
+    if (widget.initialTabIndex != null) {
+      selectedIndex = widget.initialTabIndex!;
+    }
+    
     // Listen for unread chats
     _checkForUnreadChats();
     // Listen for unread notifications
@@ -82,7 +89,29 @@ class _HomeScreenState extends State<HomeScreen> {
         .snapshots()
         .listen((snapshot) {
           setState(() {
+            // Check if there are any unread notifications
             hasUnreadNotifications = snapshot.docs.isNotEmpty;
+            
+            // Also update the count for different notification types
+            int messageNotifications = 0;
+            int friendNotifications = 0;
+            
+            for (var doc in snapshot.docs) {
+              final data = doc.data();
+              final type = data['type'] as String?;
+              
+              if (type == 'message') {
+                messageNotifications++;
+              } else if (type == 'friend_request' || type == 'friend_accepted') {
+                friendNotifications++;
+              }
+            }
+            
+            // Update unread chats based on message notifications too
+            hasUnreadChats = hasUnreadChats || messageNotifications > 0;
+            
+            // Update friend requests indicator based on friend notifications
+            hasNewFriendRequests = hasNewFriendRequests || friendNotifications > 0;
           });
         });  
   }

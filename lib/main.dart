@@ -49,12 +49,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      onGenerateRoute: (settings) {
+        // Handle HomeScreen navigation with tab index
+        if (settings.name == HomeScreen.routeName) {
+          final tabIndex = settings.arguments as int?;
+          return MaterialPageRoute(
+            builder: (context) => HomeScreen(initialTabIndex: tabIndex),
+          );
+        }
+        return null;
+      },
       routes: {
         LandingPage1.routeName: (_) => const LandingPage1(),
         RegisterScreen.routeName: (_) => const RegisterScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         VerficationScreen.routeName: (_) => VerficationScreen(),
-        HomeScreen.routeName: (_) => const HomeScreen(),
         LandingPage2.routeName: (_) => const LandingPage2(),
         LandingPage3.routeName: (_) => const LandingPage3(),
         Profile.routeName: (_) => const Profile(),

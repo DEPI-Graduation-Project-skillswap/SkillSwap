@@ -6,6 +6,7 @@ import 'package:skill_swap/notifications/data/data_source/notification_firebase_
 import 'package:skill_swap/notifications/data/repository/notification_repository.dart';
 import 'package:skill_swap/notifications/view_model/notification_cubit.dart';
 import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/shared/utils/navigation_utils.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const String routeName = '/notifications';
@@ -52,21 +53,42 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _handleNotificationTap(notification) {
-    // Mark as read
+    // Mark as read when tapped
     _notificationCubit.markAsRead(notification.id);
     
-    // Navigate based on notification type
-    if (notification.type == 'message' && notification.conversationId != null) {
-      Navigator.of(context).pushNamed(
-        ChatConversationScreen.routeName,
-        arguments: {
-          'conversationId': notification.conversationId,
-          'otherUserId': notification.senderId,
-          'otherUserName': notification.senderName,
-        },
-      );
+    // Navigate to appropriate screen based on notification type
+    switch (notification.type) {
+      case 'message':
+        // Navigate to chat conversation
+        if (notification.conversationId != null) {
+          Navigator.pushNamed(
+            context,
+            ChatConversationScreen.routeName,
+            arguments: {
+              'conversationId': notification.conversationId,
+              'otherUserId': notification.senderId,
+              'otherUserName': notification.senderName,
+            },
+          );
+        }
+        break;
+      case 'friend_request':
+        // Navigate to requests tab
+        // Return to home screen and select the requests tab
+        Navigator.popUntil(context, (route) => route.isFirst);
+        // Access the HomeScreen state to select the requests tab
+        // This will be handled in _buildRequestActionButton
+        break;
+      case 'friend_accepted':
+        // Navigate to friends tab
+        Navigator.popUntil(context, (route) => route.isFirst);
+        // Access the HomeScreen state to select the friends tab
+        // This will be handled in _buildAcceptedActionButton
+        break;
+      default:
+        // Default behavior
+        break;
     }
-    // Other notification types can be handled here
   }
 
   @override
@@ -185,13 +207,96 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   Text(
                     notification.message,
                     style: TextStyle(
-                      color: notification.isRead ? Colors.grey.shade600 : Colors.black87,
+                      color: notification.isRead ? Colors.grey[700] : Colors.black,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  // Show appropriate action button based on notification type
+                  _buildActionButton(notification),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // Build the appropriate action button based on notification type
+  Widget _buildActionButton(final notification) {
+    switch (notification.type) {
+      case 'message':
+        return _buildChatActionButton(notification);
+      case 'friend_request':
+        return _buildRequestActionButton(notification);
+      case 'friend_accepted':
+        return _buildAcceptedActionButton(notification);
+      default:
+        return const SizedBox.shrink(); // No action button for unknown types
+    }
+  }
+
+  // Button for message notifications
+  Widget _buildChatActionButton(final notification) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton.icon(
+        onPressed: () => _handleNotificationTap(notification),
+        icon: const Icon(Icons.chat, size: 16),
+        label: const Text('Open Chat'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Apptheme.primaryColor,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          textStyle: const TextStyle(fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  // Button for friend request notifications
+  Widget _buildRequestActionButton(final notification) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          // Mark as read
+          _notificationCubit.markAsRead(notification.id);
+          
+          // Navigate to requests tab (index 2)
+          NavigationUtils.navigateToHomeTab(context, 2);
+        },
+        icon: const Icon(Icons.person_add, size: 16),
+        label: const Text('View Request'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.orange,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          textStyle: const TextStyle(fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  // Button for accepted friend request notifications
+  Widget _buildAcceptedActionButton(final notification) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          // Mark as read
+          _notificationCubit.markAsRead(notification.id);
+          
+          // Navigate to friends tab (index 3)
+          NavigationUtils.navigateToHomeTab(context, 3);
+        },
+        icon: const Icon(Icons.people, size: 16),
+        label: const Text('View Friends'),
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          textStyle: const TextStyle(fontSize: 12),
         ),
       ),
     );

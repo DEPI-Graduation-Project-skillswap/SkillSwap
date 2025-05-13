@@ -4,6 +4,7 @@ import 'package:skill_swap/requests/data/models/friend_request_model.dart';
 import 'package:skill_swap/requests/data/data_source/friend_requests_data_source.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
+import 'package:skill_swap/notifications/utils/notification_helper.dart';
 
 class FriendRequestFirebaseDataSource extends FriendRequestsDataSource {
   @override
@@ -59,6 +60,12 @@ class FriendRequestFirebaseDataSource extends FriendRequestsDataSource {
     await requestsReceivedRef
         .doc(currentUser.userDetailId)
         .set(friendRequestReceived);
+    
+    // Create notification for the receiver
+    await NotificationHelper.createFriendRequestNotification(
+      receiverId: user.userDetailId,
+      receiverName: user.name ?? 'User',
+    );
   }
 
   @override
@@ -137,6 +144,12 @@ class FriendRequestFirebaseDataSource extends FriendRequestsDataSource {
           .collection('requestsSent')
           .doc(currentUserId)
           .delete();
+          
+      // Create notification for the sender that their request was accepted
+      await NotificationHelper.createFriendAcceptedNotification(
+        receiverId: senderId,
+        receiverName: request.name,
+      );
     } catch (e) {
       throw Exception("Failed to accept friend request: $e");
     }

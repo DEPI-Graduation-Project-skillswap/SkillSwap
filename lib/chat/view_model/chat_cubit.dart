@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skill_swap/chat/data/models/chat_conversation_model.dart';
 import 'package:skill_swap/chat/data/models/message_model.dart';
 import 'package:skill_swap/chat/data/repository/chat_repository.dart';
+import 'package:skill_swap/notifications/utils/notification_helper.dart';
 
 
 // States
@@ -95,11 +97,14 @@ class ChatCubit extends Cubit<ChatState> {
       final messageId = await repository.sendMessage(message);
       
       if (messageId.isNotEmpty) {
-        // Get updated messages
+        // Create or get conversation ID
         final conversationId = await repository.createOrGetConversation(
           currentUserId,
           receiverId,
         );
+        
+        // Send notification for new message
+        await _sendMessageNotification(receiverId, content, conversationId);
         
         await getMessages(conversationId);
         return true;
@@ -121,6 +126,33 @@ class ChatCubit extends Cubit<ChatState> {
     } catch (e) {
       emit(ChatError('Failed to create conversation: $e'));
       return '';
+    }
+  }
+  
+  // Helper method to send notification for new message
+  Future<void> _sendMessageNotification(String receiverId, String content, String conversationId) async {
+    try {
+      // Get receiver's name
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(receiverId)
+          .collection('userdetails')
+          .get();
+      
+      String receiverName = 'User';
+      if (userDoc.docs.isNotEmpty) {
+        receiverName = userDoc.docs.first.data()['name'] ?? 'User';
+      }
+      
+      // Create notification
+      await NotificationHelper.createMessageNotification(
+        receiverId: receiverId,
+        receiverName: receiverName,
+        message: content,
+        conversationId: conversationId,
+      );
+    } catch (e) {
+      print('Error sending message notification: $e');
     }
   }
 }
