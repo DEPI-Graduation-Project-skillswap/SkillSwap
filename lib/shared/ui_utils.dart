@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skill_swap/auth/loading_indecator.dart';
+import 'package:skill_swap/widgets/loading_indecator.dart';
 import 'package:skill_swap/shared/app_theme.dart';
 
 class UiUtils {

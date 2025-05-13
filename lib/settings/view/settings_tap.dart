@@ -6,6 +6,7 @@ import 'package:skill_swap/settings/view_model/settings_provider.dart';
 import 'package:skill_swap/shared/app_theme.dart';
 import 'package:skill_swap/shared/ui_utils.dart';
 import 'package:skill_swap/widgets/default_eleveted_botton.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsTap extends StatefulWidget {
   const SettingsTap({super.key});
@@ -18,22 +19,22 @@ class _SettingsTapState extends State<SettingsTap> {
   @override
   Widget build(BuildContext context) {
     SettingsProvider settingsProvider = Provider.of<SettingsProvider>(context);
-
+    var local = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Settings", style: Theme.of(context).textTheme.titleLarge),
+          Text(local.settings, style: Theme.of(context).textTheme.titleLarge),
           Text(
-            'Customize Your SkillSwap Experience',
+            local.customize_experience,
             style: Theme.of(
               context,
             ).textTheme.titleMedium!.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 50),
           Text(
-            "Language",
+            local.language,
             style: Theme.of(
               context,
             ).textTheme.titleLarge!.copyWith(fontSize: 20),
@@ -47,13 +48,15 @@ class _SettingsTapState extends State<SettingsTap> {
             child: Column(
               children: [
                 RadioListTile<String>(
-                  value: 'English',
+                  value: 'en',
                   groupValue: settingsProvider.languageCode,
                   onChanged: (value) {
-                    settingsProvider.changeLanguage("English");
+                    if (value != null) {
+                      settingsProvider.changeLanguage(value);
+                    }
                   },
                   title: Text(
-                    'English',
+                    local.english,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   activeColor: Apptheme.primaryColor,
@@ -64,13 +67,15 @@ class _SettingsTapState extends State<SettingsTap> {
                   child: Divider(indent: 16, endIndent: 16),
                 ),
                 RadioListTile<String>(
-                  value: 'Arabic',
+                  value: 'ar',
                   groupValue: settingsProvider.languageCode,
                   onChanged: (value) {
-                    settingsProvider.changeLanguage("Arabic");
+                    if (value != null) {
+                      settingsProvider.changeLanguage(value);
+                    }
                   },
                   title: Text(
-                    'Arabic',
+                    local.arabic,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   activeColor: Apptheme.primaryColor,
@@ -80,8 +85,8 @@ class _SettingsTapState extends State<SettingsTap> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Appearance',
+          Text(
+            local.appearance,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -111,7 +116,7 @@ class _SettingsTapState extends State<SettingsTap> {
                         ),
                     const SizedBox(width: 20),
                     Text(
-                      "Dark Mode",
+                      local.dark_mode,
                       style: Theme.of(
                         context,
                       ).textTheme.titleLarge!.copyWith(fontSize: 20),
@@ -141,7 +146,7 @@ class _SettingsTapState extends State<SettingsTap> {
                         logout();
                       } catch (e) {
                         if (mounted) {
-                          UiUtils.showSnackBar(context, "Something went wrong");
+                          UiUtils.showSnackBar(context, local.error_occurred);
                         }
                       }
                     },
@@ -149,7 +154,7 @@ class _SettingsTapState extends State<SettingsTap> {
                 },
               );
             },
-            text: "Logout",
+            text: local.logout,
             backGroundColor: Apptheme.red,
             icon: Icons.logout,
           ),

@@ -22,6 +22,7 @@ import 'package:skill_swap/user_profile/views/screens/user_profile_setup.dart';
 import 'package:skill_swap/chat/view/screens/chat_list_screen.dart';
 import 'package:skill_swap/chat/view/screens/chat_conversation_screen.dart';
 import 'package:skill_swap/notifications/view/screens/notification_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,8 +50,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+
       onGenerateRoute: (settings) {
-        // Handle HomeScreen navigation with tab index
         if (settings.name == HomeScreen.routeName) {
           final tabIndex = settings.arguments as int?;
           return MaterialPageRoute(
@@ -82,10 +84,13 @@ class MyApp extends StatelessWidget {
         },
       },
       initialRoute: LoginScreen.routeName,
+
       darkTheme: Apptheme.darkTheme,
       theme: Apptheme.lightTheme,
       themeMode: ThemeMode.light,
-      debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: Locale(Provider.of<SettingsProvider>(context).languageCode),
     );
   }
 }
