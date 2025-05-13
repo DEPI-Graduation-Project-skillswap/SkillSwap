@@ -10,13 +10,24 @@ class NotificationFirebaseDataSource implements NotificationDataSource {
     try {
       print('Getting notifications for user: $userId'); // Debug log
       
+      // First check if there are any notifications in the collection
+      final allNotifications = await _firestore.collection('notifications').get();
+      print('Total notifications in collection: ${allNotifications.docs.length}');
+      
+      // Then check if any are associated with this user
       final notificationsSnapshot = await _firestore
           .collection('notifications')
           .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
           .get();
       
-      print('Found ${notificationsSnapshot.docs.length} notifications'); // Debug log
+      print('Found ${notificationsSnapshot.docs.length} notifications for user $userId'); // Debug log
+      
+      // Log the first few notifications for debugging
+      if (notificationsSnapshot.docs.isNotEmpty) {
+        print('First notification details:');
+        print(notificationsSnapshot.docs.first.data());
+      }
       
       return notificationsSnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
