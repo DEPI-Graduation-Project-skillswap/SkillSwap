@@ -49,8 +49,8 @@ dependencies:
   device_info_plus: ^11.3.3
   provider: ^6.1.4
   skeletonizer: ^1.4.3
-  uuid: ^4.5.1
-
+  flutter_localization: ^0.3.2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
