@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_swap/chat/view/screens/chat_conversation_screen.dart';
 import 'package:skill_swap/home/view/widgets/account_cart_eleveted_bottom.dart';
+import 'package:skill_swap/shared/app_theme.dart';
+import 'package:skill_swap/shared/widgets/profile_initials.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
 
 class AccountCard extends StatelessWidget {
@@ -107,15 +109,23 @@ class AccountCard extends StatelessWidget {
   
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () => _navigateToChat(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.all(16),
           width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, Colors.grey.shade50],
+            ),
+          ),
           child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -153,14 +163,11 @@ class AccountCard extends StatelessWidget {
   Widget _buildUserHeader(BuildContext context) {
     return Row(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(
-            'assets/images/account_image.png',
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-          ),
+        ProfileInitials(
+          name: user.name ?? 'User',
+          radius: 40,
+          fontSize: 26,
+          border: Border.all(color: Colors.white, width: 3),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -170,21 +177,31 @@ class AccountCard extends StatelessWidget {
               Text(
                 user.name ?? 'No Name',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 0.2,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                user.bio ?? 'No bio available',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
-                  color: Colors.black54,
+              const SizedBox(height: 6),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                child: Text(
+                  user.bio ?? 'No bio available',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -199,43 +216,85 @@ class AccountCard extends StatelessWidget {
     final showMore = skills.length > 3;
     final displayedSkills = showMore ? skills.take(3).toList() : skills;
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+    // Choose a different color based on the section title
+    Color chipColor = title.contains("Wanted") ? 
+        Colors.amber.shade100 : 
+        Apptheme.primaryColor.withOpacity(0.1);
+        
+    Color borderColor = title.contains("Wanted") ? 
+        Colors.amber.shade300 : 
+        Apptheme.primaryColor.withOpacity(0.3);
+        
+    Color textColor = title.contains("Wanted") ? 
+        Colors.amber.shade900 : 
+        Apptheme.primaryColor;
+    
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Icon(
+                title.contains("Wanted") ? Icons.search : Icons.local_offer_outlined,
+                color: textColor,
+                size: 18,
+              ),
+              SizedBox(width: 6),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: [
-            ...displayedSkills.map(
-              (skill) => Chip(
-                label: Text(skill),
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: const BorderSide(color: Colors.black12),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              ...displayedSkills.map(
+                (skill) => Chip(
+                  label: Text(
+                    skill, 
+                    style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.8)),
+                  ),
+                  backgroundColor: chipColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: borderColor),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-            ),
-            if (showMore)
-              Chip(
-                label: const Text("more..."),
-                backgroundColor: Colors.grey[200],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: const BorderSide(color: Colors.black12),
+              if (showMore)
+                Chip(
+                  label: Text(
+                    "more...", 
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  ),
+                  backgroundColor: Colors.grey[100],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-              ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
