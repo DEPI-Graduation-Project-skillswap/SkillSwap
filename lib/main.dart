@@ -18,8 +18,10 @@ import 'package:skill_swap/landing/landing_page2.dart';
 import 'package:skill_swap/landing/landing_page3.dart';
 import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
 import 'package:skill_swap/user_profile/views/screens/profile.dart';
-
 import 'package:skill_swap/user_profile/views/screens/user_profile_setup.dart';
+import 'package:skill_swap/chat/view/screens/chat_list_screen.dart';
+import 'package:skill_swap/chat/view/screens/chat_conversation_screen.dart';
+import 'package:skill_swap/notifications/view/screens/notification_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +59,18 @@ class MyApp extends StatelessWidget {
         LandingPage3.routeName: (_) => const LandingPage3(),
         Profile.routeName: (_) => const Profile(),
         UserProfileSetup.routeName: (_) => const UserProfileSetup(),
+        ChatListScreen.routeName: (_) => const ChatListScreen(),
+        NotificationScreen.routeName: (_) => const NotificationScreen(),
+        ChatConversationScreen.routeName: (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return ChatConversationScreen(
+            conversationId: args['conversationId'] ?? '',
+            otherUserId: args['otherUserId'] ?? '',
+            otherUserName: args['otherUserName'] ?? 'Chat',
+          );
+        },
       },
       initialRoute: LoginScreen.routeName,
       darkTheme: Apptheme.darkTheme,

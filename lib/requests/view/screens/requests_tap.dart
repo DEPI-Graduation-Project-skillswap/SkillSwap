@@ -121,29 +121,30 @@ class _RequestsTapState extends State<RequestsTap> {
                         return FriendRequestWidget(
                           friendRequestModel: request,
                           onAcceptPressed: () async {
-                            await context
+                            final success = await context
                                 .read<FriendRequestsCubit>()
                                 .acceptFriendRequest(request);
+                            
                             UiUtils.showSnackBar(
                               context,
-                              color: Apptheme.primaryColor,
-                              "Friend request accepted    ",
+                              success ? "Friend request accepted" : "Failed to accept request",
+                              color: success ? Apptheme.primaryColor : Apptheme.red,
                             );
-                            await context
-                                .read<FriendRequestsCubit>()
-                                .getReceivedFriendRequests();
+                            
+                            // Refresh already handled in the cubit
                           },
                           onDeclinePressed: () async {
-                            await context
+                            final success = await context
                                 .read<FriendRequestsCubit>()
                                 .declineFriendRequest(request);
+                            
                             UiUtils.showSnackBar(
                               context,
-                              "Friend request declined",
+                              success ? "Friend request declined" : "Failed to decline request",
+                              color: success ? Apptheme.red : Apptheme.red.withOpacity(0.7),
                             );
-                            await context
-                                .read<FriendRequestsCubit>()
-                                .getReceivedFriendRequests();
+                            
+                            // Refresh already handled in the cubit
                           },
                         );
                       },
@@ -160,13 +161,21 @@ class _RequestsTapState extends State<RequestsTap> {
                           friendRequestModel: request,
                           onAcceptPressed: () {},
                           onDeclinePressed: () async {
-                            await context
-                                .read<FriendRequestsCubit>()
-                                .declineFriendRequest(request);
-                            UiUtils.showSnackBar(context, "Request canceled");
-                            await context
-                                .read<FriendRequestsCubit>()
-                                .getReceivedFriendRequests();
+                            // Optimistically remove the request from the UI to prevent the request from still showing
+                            // even when it was successfully canceled
+                            final cubit = context.read<FriendRequestsCubit>();
+                            final success = await cubit.declineFriendRequest(request);
+                                
+                            UiUtils.showSnackBar(
+                              context, 
+                              success ? "Request canceled" : "Failed to cancel request", 
+                              color: success ? Colors.orange : Apptheme.red
+                            );
+                            
+                            // Force refresh the sent requests list
+                            if (success) {
+                              await cubit.getSentFriendRequests();
+                            }
                           },
                           isOutgoing: true,
                         );

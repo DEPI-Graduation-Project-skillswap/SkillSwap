@@ -45,8 +45,11 @@ class FriendRequestsCubit extends Cubit<FriendRequestsState> {
   Future<bool> addFriend(UserProfileModel user) async {
     try {
       await friendsRequestsRepository.addFriend(user);
+      // Refresh sent requests list after adding a new friend request
+      await getSentFriendRequests();
       return true;
-    } catch (_) {
+    } catch (e) {
+      print('Error adding friend: $e');
       return false;
     }
   }
@@ -54,9 +57,12 @@ class FriendRequestsCubit extends Cubit<FriendRequestsState> {
   Future<bool> acceptFriendRequest(FriendRequestModel request) async {
     try {
       await friendsRequestsRepository.acceptFriendRequest(request);
-      await getReceivedFriendRequests(); // Refresh the list after action
+      // Refresh the lists after action to update UI
+      await getReceivedFriendRequests();
+      await getSentFriendRequests();
       return true;
-    } catch (_) {
+    } catch (e) {
+      print('Error accepting friend request: $e');
       return false;
     }
   }
@@ -64,9 +70,25 @@ class FriendRequestsCubit extends Cubit<FriendRequestsState> {
   Future<bool> declineFriendRequest(FriendRequestModel request) async {
     try {
       await friendsRequestsRepository.declineFriendRequest(request);
-      await getReceivedFriendRequests(); // Refresh the list after action
+      
+      // Always refresh both lists regardless of current state to keep everything in sync
+      await getSentFriendRequests();
+      await getReceivedFriendRequests();
+      
+      // Emit a special state to force UI updates in the home tab
+      final currentState = state;
+      if (currentState is SentFriendRequestsSuccess) {
+        emit(SentFriendRequestsSuccess(
+          // Filter out the cancelled request from the list
+          currentState.list.where((req) => 
+            !(req.senderId == request.senderId && req.receiverId == request.receiverId)
+          ).toList()
+        ));
+      }
+      
       return true;
-    } catch (_) {
+    } catch (e) {
+      print('Error declining friend request: $e');
       return false;
     }
   }

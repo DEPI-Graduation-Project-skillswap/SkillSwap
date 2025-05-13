@@ -34,20 +34,24 @@ class HomeFirebaseDataSource extends HomeDataSource {
     String currentUserID = AuthViewModel.currentUser!.id;
     try {
       final usersSnapshot = await getUserCollections().get();
-      List<UserProfileModel> userProfiles = [];
+      List<UserProfileModel> compatibleUsers = [];
+      List<UserProfileModel> otherUsers = [];
 
       for (var userDoc in usersSnapshot.docs) {
         final userDetailsSnapshot = await getUserDetails(userDoc.id).get();
         for (var detailDoc in userDetailsSnapshot.docs) {
-          if (detailDoc.data().userDetailId != currentUserID &&
-              currentUserWantedSkills.any((skill) {
-                return detailDoc.data().offeredSkills!.contains(skill);
-              })) {
-            userProfiles.add(detailDoc.data());
+          if (detailDoc.data().userDetailId != currentUserID) {
+            if (currentUserWantedSkills.any((skill) {
+                  return detailDoc.data().offeredSkills!.contains(skill);
+                })) {
+              compatibleUsers.add(detailDoc.data());
+            } else {
+              otherUsers.add(detailDoc.data());
+            }
           }
         }
       }
-      return userProfiles;
+      return [...compatibleUsers, ...otherUsers];
     } catch (e) {
       throw Exception("Error fetching home users: $e");
     }

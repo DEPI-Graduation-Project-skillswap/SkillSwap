@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:skill_swap/chat/view/screens/chat_list_screen.dart';
 import 'package:skill_swap/home/view/widgets/home_tap.dart';
 import 'package:skill_swap/requests/view/screens/requests_tap.dart';
 import 'package:skill_swap/search/search_tap.dart';
@@ -17,6 +20,51 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Widget> taps = [HomeTap(), SearchTap(), RequestsTap(), SettingsTap()];
   int selectedIndex = 0;
+  bool hasUnreadChats = false;
+  bool hasUnreadNotifications = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Listen for unread chats
+    _checkForUnreadChats();
+    // Listen for unread notifications
+    _checkForUnreadNotifications();
+  }
+  
+  // Check for unread chat messages
+  void _checkForUnreadChats() {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+    
+    FirebaseFirestore.instance
+        .collection('user_conversations')
+        .where('userId', isEqualTo: currentUserId)
+        .where('unreadMessages', isEqualTo: true)
+        .snapshots()
+        .listen((snapshot) {
+          setState(() {
+            hasUnreadChats = snapshot.docs.isNotEmpty;
+          });
+        });
+  }
+  
+  // Check for unread notifications
+  void _checkForUnreadNotifications() {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+    
+    FirebaseFirestore.instance
+        .collection('notifications')
+        .where('userId', isEqualTo: currentUserId)
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+          setState(() {
+            hasUnreadNotifications = snapshot.docs.isNotEmpty;
+          });
+        });  
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +82,71 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_outlined, size: 30),
-            onPressed: () {},
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, size: 30),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/notifications');
+                },
+              ),
+              if (hasUnreadNotifications)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 14,
+                      minHeight: 14,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '',
+                        style: TextStyle(color: Colors.white, fontSize: 8),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.chat_outlined, size: 30),
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, ChatListScreen.routeName);
+                },
+                icon: const Icon(Icons.chat_outlined, size: 30),
+              ),
+              if (hasUnreadChats)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 14,
+                      minHeight: 14,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '',
+                        style: TextStyle(color: Colors.white, fontSize: 8),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           Padding(
             padding: EdgeInsetsDirectional.only(end: 20, start: 10),

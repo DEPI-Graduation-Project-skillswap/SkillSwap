@@ -8,12 +8,14 @@ class AccountCartElevetedBottom extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.child,
+    this.backgroundColor,
   });
 
   final VoidCallback? onPressed; // Nullable for disabled state
   final String text;
   final IconData? icon;
   final Widget? child; // Allows showing loading spinners
+  final Color? backgroundColor; // Custom background color
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class AccountCartElevetedBottom extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Apptheme.primaryColor,
+        backgroundColor: backgroundColor ?? Apptheme.primaryColor,
         fixedSize: Size(MediaQuery.of(context).size.width * .3, 40),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
