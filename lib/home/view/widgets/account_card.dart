@@ -21,7 +21,40 @@ class AccountCard extends StatelessWidget {
   
   // Build the appropriate action button based on relationship status
   Widget _buildActionButton(BuildContext context) {
-    if (isRequestSent) {
+    if (isFriend) {
+      // If users are already friends, show Friends indicator and Chat button
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue.shade300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.people, color: Colors.blue, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  'Friends',
+                  style: TextStyle(color: Colors.blue.shade800),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Chat With button
+          AccountCartElevetedBottom(
+            text: 'Chat With',
+            onPressed: () => _navigateToChat(context),
+            backgroundColor: Colors.green,
+          ),
+        ],
+      );
+    } else if (isRequestSent) {
       // If request is pending, show Cancel Request button
       return AccountCartElevetedBottom(
         text: 'Cancel Request',
@@ -29,7 +62,7 @@ class AccountCard extends StatelessWidget {
         backgroundColor: Colors.orange,
       );
     } else {
-      // Show either Chat With or Add Friend button
+      // Show Add Friend and Chat With buttons
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -17,6 +17,9 @@ class _SearchTapState extends State<SearchTap> {
   final TextEditingController _searchController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+  
+  // Track users who are friends
+  Map<String, bool> friendsMap = {};
 
   List<UserProfileModel> _searchResults = [];
   bool _isLoading = false;
@@ -28,12 +31,35 @@ class _SearchTapState extends State<SearchTap> {
     super.initState();
     // Load all users on initial load to ensure users exist
     _loadAllUsers();
+    // Load friends to check friendship status
+    _loadFriends();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+  
+  // Load the list of friends to track which users are already friends
+  void _loadFriends() async {
+    if (currentUserId.isEmpty) return;
+    
+    // Listen for changes in the friends collection
+    _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('friends')
+        .snapshots()
+        .listen((snapshot) {
+          setState(() {
+            friendsMap = {}; // Clear existing map
+            // Rebuild the map with current friends
+            for (var doc in snapshot.docs) {
+              friendsMap[doc.id] = true;
+            }
+          });
+        });
   }
 
   // Get users collection with converter
@@ -411,6 +437,28 @@ class _SearchTapState extends State<SearchTap> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(user.bio ?? 'No bio'),
+                                const SizedBox(height: 4),
+                                // Show friend indicator if they are friends
+                                if (friendsMap.containsKey(user.userDetailId))
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.blue.shade300),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.people, color: Colors.blue, size: 12),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Friends',
+                                          style: TextStyle(color: Colors.blue.shade800, fontSize: 12),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 const SizedBox(height: 4),
                                 if (user.offeredSkills?.isNotEmpty == true)
                                   Wrap(

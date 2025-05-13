@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_swap/chat/view/screens/chat_list_screen.dart';
 import 'package:skill_swap/home/view/widgets/home_tap.dart';
+import 'package:skill_swap/friends/view/widgets/friends_tap.dart';
 import 'package:skill_swap/requests/view/screens/requests_tap.dart';
 import 'package:skill_swap/search/search_tap.dart';
 import 'package:skill_swap/settings/view/settings_tap.dart';
@@ -18,10 +19,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Widget> taps = [HomeTap(), SearchTap(), RequestsTap(), SettingsTap()];
+  List<Widget> taps = [HomeTap(), SearchTap(), RequestsTap(), FriendsTap(), SettingsTap()];
   int selectedIndex = 0;
   bool hasUnreadChats = false;
   bool hasUnreadNotifications = false;
+  bool hasNewFriendRequests = false;
   
   @override
   void initState() {
@@ -30,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _checkForUnreadChats();
     // Listen for unread notifications
     _checkForUnreadNotifications();
+    // Listen for new friend requests
+    _checkForNewFriendRequests();
   }
   
   // Check for unread chat messages
@@ -45,6 +49,23 @@ class _HomeScreenState extends State<HomeScreen> {
         .listen((snapshot) {
           setState(() {
             hasUnreadChats = snapshot.docs.isNotEmpty;
+          });
+        });
+  }
+  
+  // Check for new friend requests
+  void _checkForNewFriendRequests() {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+    
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('requestsReceived')
+        .snapshots()
+        .listen((snapshot) {
+          setState(() {
+            hasNewFriendRequests = snapshot.docs.isNotEmpty;
           });
         });
   }
@@ -178,10 +199,33 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Search',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.group_add_outlined),
+            icon: Stack(
+              children: [
+                const Icon(Icons.group_add_outlined),
+                if (hasNewFriendRequests)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 10,
+                        minHeight: 10,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             label: 'Requests',
           ),
-
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outlined),
+            label: 'Friends',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined),
             label: 'Settings',

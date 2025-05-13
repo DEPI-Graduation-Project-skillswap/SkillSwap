@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:skill_swap/home/view/widgets/account_card.dart';
 import 'package:skill_swap/home/view_model/home_state.dart';
 import 'package:skill_swap/home/view_model/home_view_model.dart';
@@ -8,6 +9,7 @@ import 'package:skill_swap/requests/data/models/friend_request_model.dart';
 import 'package:skill_swap/requests/view_model.dart/friend_requst_cubit.dart';
 import 'package:skill_swap/requests/view_model.dart/friend_requsts_state.dart';
 import 'package:skill_swap/user_profile/data/models/user_profile_model.dart';
+import 'package:skill_swap/user_profile/view_model/user_profile_setup_view_model.dart';
 import 'package:skill_swap/user_profile/views/screens/profile.dart';
 
 class HomeTap extends StatefulWidget {
@@ -20,12 +22,15 @@ class HomeTap extends StatefulWidget {
 class _HomeTapState extends State<HomeTap> {
   // Track users with pending requests
   Map<String, bool> sentRequestsMap = {};
+  // Track users who are friends
+  Map<String, bool> friendsMap = {};
   
   @override
   void initState() {
     super.initState();
     context.read<HomeViewModel>().getHomeUsers();
     _loadSentRequests();
+    _loadFriends();
   }
   
   // Load sent friend requests to keep track of which users already have pending requests
@@ -51,6 +56,27 @@ class _HomeTapState extends State<HomeTap> {
         });
       }
     });
+  }
+  
+  // Load the list of friends to track which users are already friends
+  void _loadFriends() async {
+    final currentUserId = UserProfileSetupViewModel.currentUser!.userDetailId;
+    
+    // Listen for changes in the friends collection
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('friends')
+        .snapshots()
+        .listen((snapshot) {
+          setState(() {
+            friendsMap = {}; // Clear existing map
+            // Rebuild the map with current friends
+            for (var doc in snapshot.docs) {
+              friendsMap[doc.id] = true;
+            }
+          });
+        });
   }
 
   @override
@@ -113,6 +139,8 @@ class _HomeTapState extends State<HomeTap> {
                             user: user,
                             // Pass sentRequestsMap status to show the appropriate button state
                             isRequestSent: sentRequestsMap.containsKey(user.userDetailId),
+                            // Pass friendship status
+                            isFriend: friendsMap.containsKey(user.userDetailId),
                             onPressed: () async {
                               if (sentRequestsMap.containsKey(user.userDetailId)) {
                                 // If request exists, cancel it
