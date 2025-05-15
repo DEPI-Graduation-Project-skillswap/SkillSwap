@@ -114,175 +114,75 @@ class ChatFirebaseDataSource implements ChatDataSource {
 
       print('Getting conversations for user: $currentUserId'); // Debug log
 
-      // Check all conversations for debugging
-      final allConversations =
-          await _firestore.collection('conversations').get();
-      print(
-        'Total conversations in collection: ${allConversations.docs.length}',
-      );
+      // First try with the ordered query
+      try {
+        final conversationsSnapshot =
+            await _firestore
+                .collection('user_conversations')
+                .where('userId', isEqualTo: currentUserId)
+                .orderBy('lastMessageTime', descending: true)
+                .get();
 
-      // Check all user_conversations for debugging
-      final allUserConversations =
-          await _firestore.collection('user_conversations').get();
-      print(
-        'Total user_conversations in collection: ${allUserConversations.docs.length}',
-      );
-
-      // Get all user conversation documents
-      final conversationsSnapshot =
-          await _firestore
-              .collection('user_conversations')
-              .where('userId', isEqualTo: currentUserId)
-              .orderBy('lastMessageTime', descending: true)
-              .get();
-
-      print(
-        'Found ${conversationsSnapshot.docs.length} conversations for user: $currentUserId',
-      ); // Debug log
-
-      // Process conversation documents
-      final result =
-          conversationsSnapshot.docs.map((doc) {
-            final data = doc.data();
-            print(
-              'Processing conversation: ${doc.id}, with otherUser: ${data['otherUserId']}',
-            ); // Debug log
-
-            return ChatConversationModel(
-              id: data['conversationId'] ?? '',
-              userId1: data['userId'] ?? '',
-              userId2: data['otherUserId'] ?? '',
-              lastMessage: data['lastMessage'] ?? '',
-              lastMessageTime: data['lastMessageTime'] ?? '',
-              unreadMessages: data['unreadMessages'] ?? false,
-              userName: data['userName'] ?? '',
-              userBio: data['userBio'] ?? '',
-            );
-          }).toList();
-
-      if (result.isEmpty) {
         print(
-          'No user_conversations found, attempting to repair...',
+          'Found ${conversationsSnapshot.docs.length} conversations for user: $currentUserId',
         ); // Debug log
 
-        // Try to find conversations where this user is participating but no user-specific documents exist
-        final allConversationsQuery =
-            await _firestore.collection('conversations').get();
+        // Process conversation documents
+        final result =
+            conversationsSnapshot.docs.map((doc) {
+              final data = doc.data();
+              print(
+                'Processing conversation: ${doc.id}, with otherUser: ${data['otherUserId']}',
+              ); // Debug log
+
+              return ChatConversationModel(
+                id: data['conversationId'] ?? '',
+                userId1: data['userId'] ?? '',
+                userId2: data['otherUserId'] ?? '',
+                lastMessage: data['lastMessage'] ?? '',
+                lastMessageTime: data['lastMessageTime'] ?? '',
+                unreadMessages: data['unreadMessages'] ?? false,
+                userName: data['userName'] ?? '',
+                userBio: data['userBio'] ?? '',
+              );
+            }).toList();
+
+        return result;
+      } catch (e) {
+        // If the ordered query fails (likely due to missing index), fall back to unordered query
+        print('Ordered query failed, falling back to unordered query: $e');
+
+        final conversationsSnapshot =
+            await _firestore
+                .collection('user_conversations')
+                .where('userId', isEqualTo: currentUserId)
+                .get();
 
         print(
-          'Found ${allConversationsQuery.docs.length} conversation documents to check',
+          'Found ${conversationsSnapshot.docs.length} conversations (unordered) for user: $currentUserId',
         );
 
-        // Track if we created any new user conversations
-        bool createdAny = false;
-
-        for (final convDoc in allConversationsQuery.docs) {
-          final convId = convDoc.id;
-          print('Checking conversation: $convId');
-
-          if (convId.contains(currentUserId)) {
-            print('Found conversation containing current user ID: $convId');
-            // This user is part of this conversation, ensure user document exists
-            String otherUserId = convId.split('_')[0];
-            if (otherUserId == currentUserId) {
-              otherUserId = convId.split('_')[1];
-            }
-
-            print(
-              'Creating/getting conversation with otherUserId: $otherUserId',
-            );
-            // Create user-specific conversation document
-            await createOrGetConversation(currentUserId, otherUserId);
-            createdAny = true;
-          }
-        }
-
-        // If we didn't find any conversations containing the current user,
-        // also check the messages collection for any messages involving this user
-        if (!createdAny) {
-          print('Checking messages for user $currentUserId');
-          final allMessages =
-              await _firestore
-                  .collectionGroup('messages')
-                  .where('senderId', isEqualTo: currentUserId)
-                  .limit(20)
-                  .get();
-
-          print('Found ${allMessages.docs.length} messages sent by user');
-
-          // Create conversations from messages
-          for (var msgDoc in allMessages.docs) {
-            final data = msgDoc.data();
-            final otherUserId = data['receiverId'] as String?;
-
-            if (otherUserId != null && otherUserId.isNotEmpty) {
-              print(
-                'Creating conversation from message with receiver: $otherUserId',
+        // Process conversation documents
+        final result =
+            conversationsSnapshot.docs.map((doc) {
+              final data = doc.data();
+              return ChatConversationModel(
+                id: data['conversationId'] ?? '',
+                userId1: data['userId'] ?? '',
+                userId2: data['otherUserId'] ?? '',
+                lastMessage: data['lastMessage'] ?? '',
+                lastMessageTime: data['lastMessageTime'] ?? '',
+                unreadMessages: data['unreadMessages'] ?? false,
+                userName: data['userName'] ?? '',
+                userBio: data['userBio'] ?? '',
               );
-              await createOrGetConversation(currentUserId, otherUserId);
-              createdAny = true;
-            }
-          }
+            }).toList();
 
-          // Also check received messages
-          final receivedMessages =
-              await _firestore
-                  .collectionGroup('messages')
-                  .where('receiverId', isEqualTo: currentUserId)
-                  .limit(20)
-                  .get();
+        // Sort the results manually
+        result.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
 
-          print(
-            'Found ${receivedMessages.docs.length} messages received by user',
-          );
-
-          for (var msgDoc in receivedMessages.docs) {
-            final data = msgDoc.data();
-            final senderId = data['senderId'] as String?;
-
-            if (senderId != null && senderId.isNotEmpty) {
-              print(
-                'Creating conversation from received message with sender: $senderId',
-              );
-              await createOrGetConversation(currentUserId, senderId);
-              createdAny = true;
-            }
-          }
-        }
-
-        if (createdAny) {
-          print('Created new user conversations, fetching updated list');
-          // Try again after fixing
-          final updatedSnapshot =
-              await _firestore
-                  .collection('user_conversations')
-                  .where('userId', isEqualTo: currentUserId)
-                  .orderBy('lastMessageTime', descending: true)
-                  .get();
-
-          print(
-            'After repair: found ${updatedSnapshot.docs.length} conversations',
-          );
-
-          return updatedSnapshot.docs.map((doc) {
-            final data = doc.data();
-            return ChatConversationModel(
-              id: data['conversationId'] ?? '',
-              userId1: data['userId'] ?? '',
-              userId2: data['otherUserId'] ?? '',
-              lastMessage: data['lastMessage'] ?? '',
-              lastMessageTime: data['lastMessageTime'] ?? '',
-              unreadMessages: data['unreadMessages'] ?? false,
-              userName: data['userName'] ?? '',
-              userBio: data['userBio'] ?? '',
-            );
-          }).toList();
-        } else {
-          print('No conversations found or created for user: $currentUserId');
-        }
+        return result;
       }
-
-      return result;
     } catch (e) {
       print('Error getting conversations: $e');
       return [];
@@ -384,17 +284,21 @@ class ChatFirebaseDataSource implements ChatDataSource {
 
       await messageRef.set(messageData);
 
-      // Get sender's name to display in notification
+      // Get sender's name from userdetails collection
       final senderDoc =
-          await _firestore.collection('users').doc(message.senderId).get();
-      final senderData = senderDoc.data() ?? {};
-      final senderName = senderData['name'] ?? 'Someone';
+          await _firestore
+              .collection('users')
+              .doc(message.senderId)
+              .collection('userdetails')
+              .get();
+
+      String senderName = 'Someone';
+      if (senderDoc.docs.isNotEmpty) {
+        senderName = senderDoc.docs.first.data()['name'] ?? 'Someone';
+      }
 
       // Update last message in both user conversation documents
       final batch = _firestore.batch();
-
-      // Get sender's document for reference
-      await _firestore.collection('users').doc(message.senderId).get();
 
       // Update conversation for sender
       final senderConversationQuery =
@@ -430,13 +334,10 @@ class ChatFirebaseDataSource implements ChatDataSource {
 
       await batch.commit();
 
-      // Create a notification for the recipient directly in Firestore
-      // Skip notification to self
+      // Create a notification for the recipient
       if (message.receiverId != message.senderId) {
         try {
-          final timestamp = DateTime.now().toIso8601String();
-
-          // Create notification directly in Firestore for better reliability
+          // Create notification directly in Firestore
           final notificationRef = await _firestore
               .collection('notifications')
               .add({
@@ -445,7 +346,7 @@ class ChatFirebaseDataSource implements ChatDataSource {
                 'senderName': senderName,
                 'message': message.content,
                 'type': 'message',
-                'timestamp': timestamp,
+                'timestamp': DateTime.now().toIso8601String(),
                 'isRead': false,
                 'conversationId': conversationId,
               });
@@ -453,20 +354,6 @@ class ChatFirebaseDataSource implements ChatDataSource {
           print(
             'Created notification with ID: ${notificationRef.id} for: ${message.receiverId} from $senderName: ${message.content}',
           );
-
-          // Double check that notification was created properly
-          final verifyNotification =
-              await _firestore
-                  .collection('notifications')
-                  .doc(notificationRef.id)
-                  .get();
-          if (verifyNotification.exists) {
-            print(
-              'Verified notification exists with data: ${verifyNotification.data()}',
-            );
-          } else {
-            print('ERROR: Failed to verify notification creation');
-          }
         } catch (e) {
           print('Error creating message notification: $e');
         }
